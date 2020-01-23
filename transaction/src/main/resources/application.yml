@@ -1,0 +1,18 @@
+server:
+  port: 8090
+spring:
+  datasource:
+    druid:
+      cscDB:
+        url: jdbc:mysql://192.168.6.32:3307/hap_csc?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+        username: hap
+        password: 1
+      eamDB:
+        url: jdbc:mysql://192.168.6.32:3307/hap_eam?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+        username: hap
+        password: 1
+  #jta相关参数配置
+  jta:
+    log-dir: classpath:tx-logs
+    transaction-manager-id: txManager
+  

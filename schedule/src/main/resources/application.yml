@@ -1,0 +1,15 @@
+server:
+  port: 8092
+spring:
+  application:
+    name: quartz
+# zk注册中心
+elastic:
+  job:
+    zk:
+      serverLists: 127.0.0.1:2181
+      namespace: hy_elastic7
+  spring:
+    main:
+      allow-bean-definition-overriding: true
+

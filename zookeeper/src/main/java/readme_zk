@@ -1,0 +1,156 @@
+分布式系统(一个硬件、软件分布在不通的网络、计算机上，仅仅通过消息来通讯与协调)
+	特点
+		分布性
+		对等性
+		并发性
+		缺乏全局时钟
+		故障随时发生
+							(<-   zookeeper      ->)
+	H5、app、PC->nginx集群->应用层(web服务)->服务层->基础设施(缓存、MQ、搜索引擎、配置中心)->数据库层mysql
+	存在问题
+		通讯异常
+		网络分区(脑裂现象)
+		三态(成功、失败、超时)
+		节点故障
+	CAP理论(三者不可同时兼得,需要做的是保证分区容错性的前提下,均衡一致性与可用性)
+		一致性(强一致性、弱一致性)---需要考虑保证 最终一致性
+		可用性(一直处于可用)---需要考虑保证基本可用,降级处理
+		分区容错性(不出现网络分区现象)
+	BASE理论
+		Basically available 基本可用
+		soft state 软状态,即三态的中间态,数据同步过程存在延迟，不影响系统可用性(消息队列排队)
+		eventually consistent 最终一致性,数据经过一定时间同步，能够达到最终一致的状态
+zookeeper(分布式系统中各个服务主机的高可用、高性能、具备严格顺序访问控制的协调服务)
+	设计目标
+		简单的数据结构	
+		可构建集群(paxos算法master选举)
+		顺序访问(有序节点)
+		基于内存操作(适用于读操作业务场景)
+	应用场景
+		负载均衡
+			
+		master选举(recipes下有demo)
+			利用节点信息投票,选取leader节点
+		集群管理
+			临时有序节点存储broker信息,心跳检测,断开连接临时节点消息
+		分布式锁(recipes下有demo)
+			利用节点不可重复创建来实现锁，创建成功获取锁，失败retry，直到获取到锁
+			高性能的分布式锁可采用一个有序节点来做一个锁队列,进行锁分配
+		配置管理
+			节点存储配置信息
+		分布式队列(recipes下有demo)
+			有序节点按序消费
+		数据发布和订阅
+			节点监听
+		命名服务
+			节点存储服务信息
+	安装(默认端口2181)
+		目录
+			contrib(zk附加功能支持)
+			recipes(经典场景demo)
+		conf(配置文件)
+			clientPort 服务端口,默认2181
+			dataDir(快照文件路径)
+			dataLogDir(transaction log的目录)
+			集群配置
+			tickTime：心跳时间，以毫秒为单位，最小超时时间为两个心跳时间
+			initLimit：多少个心跳时间内，允许其他server连接并初始化数据，如果ZooKeeper管理的数据较大，则应相应增大这个值
+			syncLimit：多少个tickTime内，允许follower同步，如果follower落后太多，则会被丢弃。
+	特点
+		会话状态(生命周期)
+			CONNECTING、CONNECTED、RECONNECTING、RECONNECTED、CLOSE
+		数据模型
+			类文件树,每个节点必须存储znode类容
+		节点类型(有序可用来做全局排序,序号由父节点维护一个递增计数器)
+			PERSISTENT 持久化节点
+			PERSISTENT_SEQUENTIAL 持久化有序节点
+			EPHEMERAL 	临时节点,临时节点断开会删除
+			EPHEMERAL_SEQUENTIAL	临时有序节点
+		节点状态属性
+			czxid 节点被创建id
+			mzxid 节点被修改id
+			version	节点修改版本号
+			cversion 子节点修改版本号
+			dataLength 节点数据长度
+			numChildren 子节点个数
+		ACL(scheme:id:permissions, 授权策略:用户:权限)
+			授权策略
+				world( world:anyone) id谁都有权限
+				auth(addauth digest user:pwd 来添加授权用户)setAcl /testDir/testAcl auth:user1:123456:crwa
+				digest(密文加密密码)setAcl /testDir/testDigest digest:user1:HYGa7IZRm2PUBFiFFu8xY2pPP/s=:crwa
+				ip (setAcl  /testDir/testIp ip:192.168.30.10:cdrwa)
+			permissions(crwda 增删改查管理)
+				CREATE(c)、DELETE(d)、READ(r)、WRITE(w)、ADMIN(a)
+			getAcl /testDir/testAcl
+			setAcl /testDir/testAcl world:anyone:crwa
+			addauth digest user1:123456
+			setAcl /testDir/testAcl auth:user1:123456:crwa
+			setAcl /testDir/testDigest digest:user1:HYGa7IZRm2PUBFiFFu8xY2pPP/s=:crwa
+			setAcl  /testDir/testIp ip:192.168.30.10:cdrwa
+		四字命令(查看一些状态信息)
+			echo stat|nc 127.0.0.1 2181
+		启动ZK服务:       	sh bin/zkServer.sh start 
+		查看ZK服务状态: 	sh bin/zkServer.sh status  
+		停止ZK服务:       	sh bin/zkServer.sh stop  
+		重启ZK服务:       	sh bin/zkServer.sh restart 	
+		客户端常用命令
+			ls	/ 查看类容
+			ls2 查看节点数据更新次数等
+			create、get、set、delete、rmr(递归删除)、quit(退出)、help
+	接入方式
+		原生api
+			new ZooKeeper
+		zkClient
+			new ZkClient
+		curator
+			CuratorFrameworkFactory.newClient
+			curatorFramework.start()
+	2PC(two-phase-commit两阶段提交)简单容易实现
+		第一阶段 prepare 双方进行确认
+		第二阶段 commit 双方进行确认提交
+		单点问题、同步阻塞、数据不一致、容错不好
+	3PC(比2pc多一次询问过程(是否在线?),相比较减少了单点故障)
+		1.cancommit 2.precommit 3.docommit
+	paxos
+		一阶段,
+			proposer向网络内超过半数的acceptor发送prepare消息
+			acceptor正常情况下回复promise,超过半数回应进入下一阶段，否则重新开始
+		二阶段
+			proposer发送accept消息
+			正常情况下acceptor回复accepted消息,超过半数,本次选举通过，失败，从第一阶段开始
+	zk集群
+		特点
+			顺序一致性(客户端的更新顺序和他们被发送的顺序一致)
+			原子性(操作只有成功和失败)
+			单一视图(无论客户端连哪一台服务，看到相同的zk视图)
+			可靠性
+			实时性
+			角色轮换选举避免单点故障
+		leader(管理follower,数据同步)
+		follower(处理非事务请求，转发事务请求给leader,参与投票proposal投票，参与选举)
+		observe(只处理非事务请求，转发事务请求给leader)
+		配置
+			mv zoo_sample.cfg zoo.cfg  #赋值出一个配置文件
+			vim zoo.cfg  #修改数据地址配置集群服务地址
+				dataDir =/home/zkdata
+				server.1=hadoop01:2888:3888
+				server.2=hadoop02:2888:3888
+				server.3=hadoop03:2888:3888
+			mkdir /home/zkdata
+				//必须向/home/zkdata 路径下创建myid文件，同时写入内容1,其他服务修改为对应的2、3
+				echo 1 > /home/zkdata/myid
+			./zkServer.sh start
+		ZAB理论
+			leader将写操作转为事务(proposal提议)
+			leader写完数据广播所有follower数据复制
+			等到超过半数follower返回ok,leader向follower发送commit消息
+		只要一个服务器提交了proposal,就要确保所有服务器最终都能正确提交proposal,这也是ZAB/BASE最终实现一致的一个体现
+		参与选举leader的节点必须是都已经提交了的proposal的follower服务器节点
+		新选举的leader节点中含有最高的ZXID,可以避免了leader服务器检查proposal的提交和丢弃工作
+		数据同步
+	注意事项
+		数据和日志清理，保留N个文件
+		Too many connections, 配置maxClientCnxns参数，控制单个服务的最大连接数
+		磁盘管理
+		磁盘管理集群数量,数量越过可靠性增大的同时,性能会下降,数量必须为基数
+		节点内容不建议写过大数据

@@ -1,0 +1,152 @@
+#所有incr/decr操作均是原子操作
+#key命名
+通用指令
+    type key key类型
+    #设置过期时间 expire name 10//10秒过期
+    expire key seconds
+    del key
+    exists key
+    #一个字符/任意字符/包含字符，可用-/字符匹配(\a   \?  \o)
+    #keys n*e //以n开头以e结尾，返回name
+    #keys [j,l]* //返回所有j、l开头的
+    #数据量大少用，单线程会阻塞
+    keys pattern 通配key ?/*/[]/\x
+    #基于游标的迭代器，返回0时，迭代结束,MATCH后为匹配条件，COUNT后为本次获取条数
+    scan cursor MATCH *11* COUNT
+    SCAN 命令返回的每个元素都是一个数据库键。
+    SSCAN 命令返回的每个元素都是一个集合成员。
+    HSCAN 命令返回的每个元素都是一个键值对，一个键值对由一个键和一个值组成。
+    ZSCAN 命令返回的每个元素都是一个有序集合元素，
+        一个有序集合元素由一个成员（member）和一个分值（score）组成。
+    flushdb(只清空当前数据库的键值对  dbsiz  0)
+    flushall:清空所有库的键值对（这两个指令慎用！删库跑路啊。）
+String(字符串类型 1)数量统计 2)数据序列化存储)
+	get/set/del 获取设置
+    incr/decr key 自增/自减
+    incrby/decrby key decrement 增加/减少指定
+    getset key value 设置并返回Key原值，Key不存在，则返回nil
+    SETEX key seconds value 缓存seconds秒后清除
+    SETNX key value 设置，key存在不操作
+    APPEND key value 尾部追加
+    STRLEN key value 元素长度
+    MSET/MGET key value [key value ...] 设置/获取多个值
+    Msetnx key value [key value ...]  批量
+    exites 是否存在
+#1)当队列使用
+#2)热门评论、新鲜事
+#3)基于队列记录日志(将日志信息压入队列,work将日志写入磁盘)
+#4)可作为栈(lpush/lpop、rpush/rpop)也可作为队列(rpoplpush)
+List(List类型，有序双向串链表，两端操作快，索引查找相对慢)
+    lpush/rpush key value [value ...]  头/尾添加
+    lpushx/rpushx key value  存在则头/尾添加
+    lpop/rpop key  头/尾弹出元素
+    llen key 集合数量
+    #count 表示要删除的个数
+    lrem key count value 删除列表指定的值，返回被删除的数量
+    lset key index value 修改指定值
+    lindex key index 获取index的值
+    #0表示头部，-1表示尾部
+    lrange key start stop 获取范围元素
+    ltrim key start stop 保留范围元素
+    linsert key BEFORE/AFTER pivot value
+    #可用来消息队列，lpush，rpop，头进尾出，rpoplpush是一个原子操作
+    rpoplpush source destination 源右出目标左进
+Hash(Map集合 1)结构性存储，文章、表单)
+    hset/hget key fiel value
+    hexists/hdel key fiel 存在/删除Map元素
+    hlen key Map
+    hsetnx key fiel value 存在赋值
+    hincrby key fiel increment
+    hgetall key 获取所有字段/值
+    hkeys/hvals key 获取MaP所有的key/value 值
+    hmget key fiel[file...] 获取多个值
+    HMSET key field1 "Hello1" field2 "World2"
+#交/并/差集，去重
+SET(去重,一个value为null的hashmap)
+    sadd/srem/smembers 增/删/查元素，可操作多个
+    scard key 查询数量
+    sismember 元素是否存在
+    spop key 随机弹出一个元素
+    srandmember key count 随机获取count个元素，不删除
+    smove source destinnation member 移动元素到另一个set
+    sdiff key [key...] 求差集
+    sdiffstore destination key [key...] 求差集并存到destination中
+    sinter key [key...] 求交集
+    sinterstore 交集并存储
+    sunion/sunionstore 并集/并集存储
+#使用HashMap和跳跃表(SkipList)来保证数据的存储和有序
+Sorted Set(有序set，使用与排名、topN)
+    zadd/zrem key score member[score memeber...] 添加
+    zcard key 数量
+    zscore key member 获取score
+    zincrby key increment member 为score添加increment分数
+    zcount key min max 获取score在 min<score<=max区间的元素
+    #0头  -1尾，
+    zrange key start stop [widthscores] 获取start到stop的元素
+    #按分返回min <= score <= max ，可限定数量count,从小到大
+    zrangebyscore key min max [widthscores] [limit of count]
+    #从大到小
+    zrevrangebyscore key min max
+    #返回元素位置，分数小到大/大到小
+    zrank/zrevrank key member
+    zremrangebyrank key start stop 按排名范围删除元素
+    zremrangebyscore key start stop 按分数范围删除元素
+应用场景
+    #list有序存储数据id,ltrim 保留缓存范围
+    1、显示最新的项目列表
+    #score可以是单一条件，也可以是组合条件计算出来的
+    #set按score排序，zadd、zrange、zrank
+    2、排行榜，topN操作
+    #lrem
+    3、删除过滤
+    #incr、decr 原子递增/递减操作
+    4、计数
+    处理过期项目
+    特定时间内的特定项目
+    查找某个值所在的区间
+持久化
+    #通过快照方式，符合规则触发将内存中的数据持久化到硬盘 #通过配置文件中的dir(./)和dbfilename(dbfilename)两个参数分别指定快照文件的存储路径和文件名
+    #灾难恢复容易/效率高/性能最大化/同量文件比aof小
+    #会阻塞读写操作/宕机会出现数据丢失
+    RDB方式
+        条件：
+            save 900 1
+            save 300 10
+            save 60 10000
+            save/bgsave/flushall命令
+            主从复制
+        执行过程
+            1)用fork函数复制一份副本(父进程->子进程)
+            2)父进程处理客户端请求，子进程将内存(fork时的内存，理论存在数据丢失)
+            数据写入硬盘
+            3)写完所有数据，用临时文件替换就RDB
+    #安全性高,记录写命令到AOF文件
+    #每次执行将写命令记录，会降低读写效率，存储最后一下写
+    AOF方式
+        appendonly yes 开启aof
+        appendfsync always 每次
+        appendfsync everysec 每秒
+        appendfsync no 不主动执行
+Pub/Sub(发布订阅)
+    publish channel message 发布消息
+    psubscribe/punsubscribe pattern [pattern ...] 订阅/取消订阅多个频道，支持通配符*
+    subscribe/unsubscribe 订阅/取消订阅多个
+    pubsub channels/numpat/numsub 发布的频道/客户端订阅所有模式和/订阅的数量
+Transation(事物)
+    watch/unwatch 开始监听，只监听开启之后的
+    multi 开始事物
+    exec 执行事物
+    discard 中断事物，如果有watch，watch也中断(unwatch)
+Connection(连接)
+    auth 有密码时，密码登录
+    ECHO 测试打印
+    ping ping Redis服务通不通
+    quit 安全退出
+    #共16个库， 0 －－15，select切换数据库，各个库相互隔离
+    select 选择数据库页
+Server(服务器)
+    bgsave/save
+    bgrewriteaop
+    client list
+    client
+    shutdown 停止所有客户端
