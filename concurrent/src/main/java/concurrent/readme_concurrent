@@ -1,0 +1,133 @@
+1、线程基础、线程之间的共享和协作
+    基础概念
+        CPU核心数、线程数
+        CPU时间片轮转机智
+        进程、线程
+        并行和并发
+        高并发的意义、好处、注意事项
+    线程基础
+        启动/终止线程
+            Thread/Runnable/Callable
+            安全中断线程(优先interrupt处理InterruptException、全局变量控制)
+        再认识
+            常用方法
+            状态(就绪(start)、阻塞(sleep/wait)、运行(running)、结束(安全中断线程))
+            优先级
+            守护线程(Demon)
+        共享
+            synchronize(代码前加monitorenter指令,结束加monitorexit指令)
+                对象锁
+                类锁
+            volatile(相当于对get/set进行synchronize),通过CPU的Lock指令，在写数据时，所有读中的缓存都失效,一读多写，有内存屏障的作用
+            ThreadLocal(类似于Map,Map<Thread,Integer>)
+        线程协作
+            等待和通知机制
+                wait/notify/notfyAll(Object方法)，必须要锁，
+                等待和通知的标准范式
+                notify/notfyAll 用谁(notify只能唤醒一次,一般用notifyAll,避免信号丢失)
+            join方法(等待前一个线程执行完毕)
+            yield(让出CPU进入就绪,不放锁)/sleep/wait都会进入阻塞，sleep不放锁，wait/notify使用需要锁住同一对象
+2、线程并发工具
+    Foke/join（FokeJoinPool、task(invokeAll()添加子任务、join()合并子任务)）
+        分而治之,分治法(阈值N区分进行大任务拆分，递归拆分任务，直到任务可执行)
+        工作密取/工作窃取(从头执行，从尾窃取，做完扔回尾部)
+        使用标准范式
+    CountDownLatch 一个/多个线程等待(await)计数器变为0(countDown)后执行
+    CyclicBarrirer,一组线程全部到达屏障(await)后放开屏障执行
+    Semaphore 构建固定连接池，acquire没有进入等待，release释放会唤醒等待，用在流量控制
+    Exchange,适用于两个线程数据交换，如批量生产，批量消费，消费完了之后交换数据
+    Callable、future、FutureTask(isDone、isCancelled、cancel(isMust),可以选择(强制)中断任务,一边获取图片一边处理数据)
+3、原子操作CAS
+    原理，暴露一个对象到内存中，通过比较预期变量是否一致来确定是否交换，否则自旋到一致为止
+    问题
+        ABA，可通过加版本控制
+        开销问题，如果地址V上的值和期望的值A相等，就给地址V赋给新值B，如果不是，不做任何操作
+        只能保证一个共享变量的原子操作
+    原子类的应用：Atomic
+        基本类型
+        数组
+        引用
+        版本戳
+4、显示锁和AQS
+    显示锁
+        Lock接口、核心方法
+        Lock和synchronize比较
+            Lock:可中断，可尝试锁tryLock(),unlock(),newCondition()
+        ReentrantLock
+            可重入锁，一个线程可多次获取同一个锁
+            公平锁，通过队列管理，按照队列顺序获取锁，每次检查tail前置节点，没有就获取锁
+        ReentrantReadWriteLock
+            ReadWriteLock接口
+            场景(读多写少)
+        Condition
+            用处，await、signal，
+            用Lock和Condition实现等待通知
+    LockSupport(锁工具类)
+        park、unpark
+    AbstractQueuedSynchronizer
+        AQS提供了一种实现阻塞锁和一系列依赖FIFO等待队列的同步器的框架
+        AQS使用方法和其中涉及模式
+        了解其中方法，实现一个自己的独占锁
+        深入源码
+            acquire
+                if (!tryAcquire(arg) && acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+                尝试获取锁，获取成功返回，
+                    获取失败，加入到尾节点，没有尾节点，则尾节点就是头结点，然后尝试获取一次锁，如果前驱为头结点，获取锁，如果不是进入等待
+                拿锁，成功-->OVER
+                      失败-->加入Node双向链表--->再尝试拿一次锁(因为有可能现在他是头节点了)-->成功-->OVER
+
+            1.调用自定义同步器的tryAcquire()尝试直接去获取资源，如果成功则直接返回；
+            2.没成功，则addWaiter()将该线程加入等待队列的尾部，并标记为独占模式；
+            3.acquireQueued()使线程在等待队列中休息，有机会时（轮到自己，会被unpark()）会去尝试获取资源。获取到资源后才返回。如果在整个等待过程中被中断过，则返回true，否则返回false。
+            4.如果线程在等待过程中被中断过，它是不响应的。只是获取资源后才再进行自我中断selfInterrupt()，将中断补上。
+                                                                   失败-->等待-->直到头节点为当前node-->获取成功-->OVER
+            AQS数据结构
+                Condition,
+            节点在同步队列中的增加、移除
+            独占式同步状态获取与释放，state为1，进入获取锁，state为0，没有锁，node进入队列
+            共享式同步状态获取与释放，state为N，每次获取锁-1，当减为0，没有锁，node进入队列
+            Condition分析
+                等待队列
+                await()
+                signal()
+并发容器
+    散列冲突：1.开放寻址(线性探查，需要找到所有的)2.在散列3.链地址法
+    HashMap多线程死循环
+        每次扩容，进行重新散列分布在新的数组列表上(非tree的时候)
+    ConcurentHashMap
+        1.7segment，默认16个，不随扩容增加，size进行两次不加锁统计，不一致则加锁再统计
+    ConcurrentSkipListSet 跳表，建立索引节点，提高查找速度
+    CopyOnWriteArrayList 写时复制容器，利用读写分离思想，空间换时间，保证最终一致性，适用于读多写少场景
+阻塞队列
+    方法  抛出异常    返回值     一直阻塞    超时退出
+    插入  add         offer       put         offer(time)
+    移除  remove      poll        take        poll(time)
+    检查  element     peek        无          无
+    ArrayBlockQueue 数组游街队列
+    LinkedBlockQueue
+    DelayQueue<E extends Delayed> Delayed接口需要实现compareTo和getDelay 接口
+    SynchronousQueue：一个不存储元素的阻塞队列。每一个put操作都要等待一个take操作。
+线程池
+    corePoolSize、maxPoolSize、keepAliveTime、TimeUnit、BlockingQueue
+    Executors 线程池创建工具类(都采用的无界队列)
+    ScheduledExecutorService 定时任务
+    CompletionService 可以让先完成的任务先返回，不会像队列阻塞任务（执行需要返回的任务不需要按顺序返回）
+线程安全
+    栈封闭(变量都在方法内声明)、状态不可变(不提供修改成员变量的方法)、volatile(一写多读)、枷锁和CAS、安全发布
+死锁
+    保证加锁的顺序性,bin/ 下jps 查看id,jstack id查看应用锁持有情况
+    动态顺序情况下，System.identityHashCode获取对象原始hashcode确认锁的顺序
+活锁
+    相互谦让不拿锁,休眠随机时间，错开拿锁时间
+线程饥饿
+    低优先级拿不到锁
+影响性能因素
+    上下文切换(线程之间的切换)、内存同步(锁指令,需要刷新缓存)、阻塞(导致挂起，唤醒，重新排队，导致多余上下文切换)
+优化(减少锁的竞争)
+    减小锁粒度、减小锁的范围(锁代码块)、锁分段(CurrentHashMap)、替换独占锁(CAS、读写锁、并发容器,对于需要频繁抢占锁的情况不适合)
+JMM
+    线程之间通信(共享内存、消息传递wait()和notify())
+    线程之间同步()
+    伪共享(缓存读取的最小单位为64位，如果又x，y在一个缓存行中，如果修改了x，写入更高级缓存中的时候会锁定一整行，导致y无法操作，影响性能。)--把变量补满64位，减少伪共享
+    内存屏障,禁止重排序，写入屏障，强制刷新各个内存中的的数据，和volatile差不多
+    happensbefor ，代码重排序后，a happendsbefor b 只要保证b的时候有a，不一定是a一定要先于b执行

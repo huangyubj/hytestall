@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<properties resource="application.properties" />
+
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+		<setting name="aggressiveLazyLoading" value="false" />
+	</settings>
+	<!-- 别名定义 -->
+<!--	<typeAliases>-->
+<!--		<package name="com.hy.mybatis.entity" />-->
+<!--	</typeAliases>-->
+
+<!--	<plugins>-->
+<!--		<plugin interceptor="com.hy.mybatis.interceptors.ThresholdInterceptor">-->
+<!--			<property name="threshold" value="10"/>-->
+<!--		</plugin>-->
+<!--	</plugins>-->
+	<!--配置environment环境 -->
+	<environments default="development">
+		<!-- 环境配置1，每个SqlSessionFactory对应一个环境 -->
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="UNPOOLED">
+				<property name="driver" value="${jdbc_driver}" />
+				<property name="url" value="${jdbc_url}" />
+				<property name="username" value="${jdbc_username}" />
+				<property name="password" value="${jdbc_password}" />
+			</dataSource>
+		</environment>
+	</environments>
+
+	<!-- 映射文件，mapper的配置文件 -->
+	<mappers>
+		<!--直接映射到相应的mapper文件 -->
+		<mapper resource="sqlmapper/CscLineMapper.xml" />
+		<mapper resource="sqlmapper/CscLineStationMapper.xml" />
+		<mapper resource="sqlmapper/CscTaskItemMapper.xml" />
+		<mapper resource="sqlmapper/CscTaskMapper.xml" />
+		<mapper resource="sqlmapper/CscTaskStationMapper.xml" />
+	</mappers>
+<!--	<mappers class="com.hy.mybatis.entity.CscLine"/>-->
+<!--	</mappers>-->
+
+</configuration>  

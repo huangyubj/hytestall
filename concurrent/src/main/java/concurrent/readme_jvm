@@ -1,0 +1,186 @@
+程序计数器(线程私有)
+    当前程序执行字节码的行号指示码，占用内存小，也无法干涉
+虚拟机栈(线程私有)
+    每个线程私有，每个方法运行打包成一个栈帧，当前正在执行的方法就是虚拟机栈顶的栈帧，栈帧缺省大小1M，可通过-Xss256k  进行设置
+        栈帧(局部变量表、操作栈、动态连接、返回地址)
+本地方法栈(线程私有)
+    native方法栈，1.6常量池，永久代，1.8 元空间,native方法是Java 通过JNI直接调用本地 C/C++ 库
+堆(线程共享-Xms 堆最小内存 -Xmx 堆最大内存)
+    基本所有实例对象都在堆中，其他的如：栈上分配，1.7及以上常量池
+方法区(线程共享)
+    类信息、常量，静态变量，字节码等信息
+直接内存： -XX:MaxDirectMemorySize 设置直接内存
+    独立于虚拟机运行时数据外，对于如NIO这样需要频繁访问的，在java堆中用directByteBuffer引用操作，跳过native访问，提高效率
+对象的访问方式
+    1.使用句柄访问，便于内存回收,内存回收只需要修改句柄中的地址
+    2.直接指针访问，访问快，内存回收慢
+回收方法
+    1.引用计数算法：  会出现A<---->B 互相引用无法回收问题
+    2.可达性分析：GC Roots到达不到的对象及不可达对象,包含
+        a.方法区：类静态属性引用的对象、常量池引用的对象
+        b.虚拟机栈中引用的对象
+        c.本地方法栈JNI（Native方法）中引用的变量
+引用类型
+    强、弱、软、虚
+分配内存，虚拟机采用CAS配上失败重试的方式保证更新操作的原子性
+    指针碰撞：内存规整，空闲/已用内存分开，通过指针指示分界点，内存使用，指针向空闲移动
+    空闲列表：内存不规整，虚拟机维护列表，记录哪些内存空闲
+内存回收算法
+    1.标记-清除算法（Mark-Sweep）：产生大量不连续的碎片内存，大内存分配不便
+    2.复制-算法（Coping）：会浪费一半内存，内存移动，需要修改引用
+    3.标记-整理（Mark-Compact）：标记-整理-删除，内存消耗
+内存区域划分(有效的空间分配担保)
+    新生代(Eden)采用复制算法，回收率高，内存工整--不够尽兴GC
+        Eden:servivor:servivor,8:1:1,次数达到/年龄到达进入老年代
+    老年代(Olden)大文件、新生代内存不足会放入老年代--不够进行full GC
+    永久代class文件，常量池
+    FullGC(老年代内存不足，老年代连续内存不足)
+    深堆，只有自己引用的
+    浅堆，自己
+垃圾回收器
+    serial单线程独占，速度快，会阻塞，复制算法
+    ParNew 多线程版serial，复制算法
+    Parallel Scavenge 吞吐量优先，复制算法，适合后台运算，不需要太多交互任务
+    Serial Old 单线程，采用标记整理算法
+    Parallel 多线程，注重吞吐量(执行时长/(执行时长+垃圾回收时间) 即使用率) 标记整理
+    CMS 多线程，并行与并发，收集时间短，适合快速响应，标记清除算法(会产生大量碎片空间)
+        JVM可以设置N次FGC后进行一次标记整理算法
+        1.初始标记，短暂STW,标记GC roots可达的对象引用
+        2.并发标记，GC roots Tracing(GC roots 追踪)，标记堆实例
+        3.重新标记，短暂STW，修整标记期间变动记录
+        4.并发清理。两次STW时间都比较短，整体来算是并发的。
+    G1 跨越新老,切分为N个region局部块，每块都有新老，整体标记整理算法，单个赋值算法
+        只清理一部分的增量清理
+        1.新生代GC,Eden清空，幸存进入survivor
+        2.并发清除周期
+            a.根区域扫描,survivor能进入olden的
+            b.并发标记
+            c.重新标记
+            d.独占标记
+            e.并发清除
+        3.混合回收，含有垃圾比例高的region进行回收
+        4.可能的fullGC
+    ZGC，没有分带概念,每次清理所有的region
+        1.Pause Mark Start 初始停顿标记
+        2.Concurrent Mark并发标记，递归标记其他对象
+        3.Relocate移动对象
+        4. Remap － 修正指针
+    STW、safepoint回收(GC)临界点
+JDK工具
+    jps：（列出当前机器上正在运行的虚拟机进程）
+        -l:输出程序主类完整package或完整jar名称
+        -v:列出JVM参数
+        -m：:输出主函数传入的参数. 下的hello 就是在执行程序时从命令行输入的参数
+    jstat（监视虚拟机的命令）
+         命令        虚拟机id          时间间隔   次数
+        jstat <option>   <vmid>  <lines> <interval> <count>  -J<flag>
+        jstat-gc 2764 250 20
+    jinfo 查看和修改虚拟机的参数
+        仅能修改java -XX:+PrintFlagsFinal –version查询出来且为manageable
+        jinfo –sysprops 可以查看由System.getProperties()取得的参数
+        jinfo –flag +[参数] 可以增加参数，
+        jinfo -flag +PrintGCDetail
+        jmap 用于生成堆转储快照（一般称为heapdump或dump文件），
+            查询finalize执行队列、Java堆和永久代的详细信息
+        jmap -dump:live,format=b,file=heap.bin <pid>
+        jstack Stack Trace for Java，生成虚拟机当前时刻的线程快照。
+        java.lang.Thread.getAllStackTraces,可以获取线程栈信息，可用来做管理界面
+class加载
+    本质
+        一组以8位字节为单位的二进制流,一张表
+    文件格式(由无符号数和表组成)
+        无符号数（u1、u2、u4、u8，1，2，3，4个字节）
+            描述数字、索引引用、数量
+        表
+            多个无符号数的符合数据类型，习惯以"_info"结尾
+        0~4字节"魔数"，确定是否为虚拟机可接受的Class文件
+        5~6字节"次版本号Minor Version"
+        7~8字节"主版本号Major Version"，拒绝执行超过其版本号的Class
+        常量池(constant_pool_count、constant_pool)
+        访问标识（access_flags）
+        类引用(this_class)、父类引用(super_class)
+        接口集合(interfaces_count、interfaces)
+        字段表集合(fields_count、fields)
+        方法表集合(methods_count、methods)
+        属性表集合(attributes_count、attributes)
+    字节码指令(操作码的长度为一个字节（即0～255）,操作码数不可能超过256个)
+        局部变量变量压入操作栈：iload、lload、fload、dload、aload
+        数值从操作栈存储到局部变量表：istore、fstore、fstore、dstore、astore
+        常量压入操作栈：bipush、sipush、ldc、aconst...
+        扩充局部变量表的访问索引的指令：wide
+        运算指令：i/l/f/dadd/sub/mul,加/减/乘
+        类型转换指令：i2b、i2c、i2s、l2i、f2i、f2l、d2i、d2l和d2f
+        创建/数组指令：new/newarray
+        访问字段：get/setfield/static
+        检查：instanceof、checkcast
+        返回：ireturn
+        同步指令：monitorenter、monitorexit，synchronized关键字
+    加载模型
+        双亲委派模型
+            BootStrap ClassLoader,＜JAVA_HOME＞\lib或-Xbootclasspath参数所指定的路径并且是虚拟机识别的如rt.jar
+            Extension ClassLoader,＜JAVA_HOME＞\lib\ext目录中
+            Application ClassLoader用户类路径（ClassPath）上所指定的类库,用户可直接使用
+    加载过程
+        加载
+            1.加载二进制字节流
+            2.转成方法区/元空间的运行时结构
+            3.内存中生成class对象作为方法区/元空间的入口
+        连接
+            验证
+                验证文件格式(魔数)、元数据(class引用)、字节码(字节码指令)、符号引用(符号引用字面量形式是否符合规范)
+            准备
+                类变量(static)的初始化(初始化为0)和分配内存
+            解析
+                将常量池中的符号引用替换为直接引用的过程
+        初始化
+            clinit构造方法执行变量的赋值,只能有一个线程能执行这个类的clinit，
+            多线程环境中被正确地加锁、同步,耗时很长的操作,可能造成多个进程阻塞
+        使用
+        卸载
+双亲委派模型（保证稳定执行）
+    启动加载器（Bootstrap）jre/lib/ext
+    扩展类加载器（Extension）
+    应用加载器（Application）
+双亲委派模型破坏（线程上下文加载器）JDBC接口编程即破坏了
+方法调用方式
+    静态分派(重载，编译期就能确定调用位置)
+    动态分配(覆盖，运行时踩知道调用位置)
+面向对象
+    1.构造参数太多，或以后会增加，采用建造者模式
+    2.不要实例化私有构造方法
+    3.不创建不必要的包装类，避免装箱拆箱
+    4.尽量使类不可变
+    5.优先使用复合多余继承(继承破坏封装性，复合增加一个引用)
+    6.接口优于抽象类
+    7.返回集合避免null
+    8.精确计算避免float/double
+    9.当心字符串连接的性能
+    16.控制方法的大小（一屏）
+性能优化
+    前端
+        客户端减少请求
+        CDN加速加载资源
+        反向代理缓存(静态资源存放nginx)
+        web组件分离(js/css/图片放在不同服务，加大浏览器并发数)
+    服务端优化
+        缓存(优先第一考虑原则)
+            缓存离用户越近越好，减少多余请求
+            缓存存在问题
+                缓存击穿(一个缓存失效时，大量请求过来，导致数据查询崩溃)
+                    1.布隆过滤器 2.把不存在的数据也缓存
+                缓存雪崩(批量缓存失效，大量请求涌入)
+                加锁解决
+            集群式缓存
+                1.分布式缓存(数据需要同步到所有服务器，代价很大)
+                2.一致性哈希，根据hash节点，将其分布在0~232的圆上，数据key通过hash分布在顺时针上的某个节点上，
+                    可能导致分布不均匀，可以采用虚拟节点来均匀分配到圆上
+        异步处理(避免阻塞)
+            serverlet异步、多线程、消息队列
+        集群(更多机器，提供更高的吞吐量)
+    程序
+        合适的数据结构(集合给定容器长度，减少扩容)
+        更优的算法/更少的代码
+        并发编程(充分利用CPU资源，需要避免线程安全)
+        减少锁竞争(轻量锁、偏向锁如CAS、读写锁)
+        单例模式
+        池化技术

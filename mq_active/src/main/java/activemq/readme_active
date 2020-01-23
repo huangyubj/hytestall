@@ -1,0 +1,66 @@
+利用高效可靠的异步消息传递机制对分布式系统中的其余各个子系统进行集成
+特点
+    分布式系统之间消息的传递
+    分布式系统与其他子系统的伸缩性和扩展性
+    低耦合(应用解耦)
+    异步通信(异步处理)
+    缓冲能力(削峰)
+与RPC区别
+    RPC模块间存在依赖性。请求多用同步
+    都是分布式方式下通信
+常见消息中间件
+    ActiveMQ    RabbitMQ    RocketMQ    Kafka
+    近万并发    万级          十万级     百万级
+                erlang
+JMS(Java Message Service)java关于消息中间件的规范
+    1.连接工厂 ConnectionFactory
+    2.JMS连接  Connection,conn.start();
+    3.JMS会话  Session
+    4.JMS目的  Destination
+    5.JMS生产者/消费者Productoer/Consumer
+    6.消息发送/注册消息监听
+    7.
+JMS消息
+    消息头
+    消息属性
+    消息体
+        TextMessage、MapMessage、ByteMessage、StreamMessage、ObjectMessage
+JMS消息模型
+    P2P(点对点)
+    Topic/主题(发布和订阅)
+消息持久化
+    p2p消息默认自动持久化
+    topic消息(运行一次消费者，将消费者在ActiveMQ上进行一次注册。然后在ActiveMQ的管理控制台subscribers页面可以看见我们的消费者)
+        持久化需要设置客户端id：connection.setClientID("Mark");
+        消息的destination变为 Topic
+        消费者类型变为TopicSubscriber
+        消费者创建时变为session.createDurableSubscriber(destination,"任意名字，代表订阅名 ");
+事物和确认方式
+                                        开启事物    确认方式
+    session = connection.createSession(true,Session.AUTO_ACKNOWLEDGE);
+    事物(开启事物会忽略确认方式，自动使用SESSION_TRANSACTED 事务提交并确认)
+        session.commit();//需要手动提交
+    确认方式
+        1.AUTO_ACKNOWLEDGE = 1    自动确认
+        2.CLIENT_ACKNOWLEDGE = 2    客户端手动确认
+        message.acknowledge();或session.acknowledge(),不确认会重启时重复消费
+        3.DUPS_OK_ACKNOWLEDGE = 3    自动批量确认
+        4.SESSION_TRANSACTED = 0    事务提交并确认
+适配符订阅
+    "." 用于作为路径上名字间的分隔符。//"Consumer.A.VirtualTopic.vtgroup"
+    "*" 用于匹配路径上的任何名字。// "*.*.*.redis.cache"
+    ">" 用于递归地匹配任何以这个名字开始的destination。 //"hy.test.>"
+组合Destination(加上前缀如queue:// 或topic://)
+    destination = session.createQueue("helloqueue,topic://hy.test.p.s.test,topic://hy.test.p.redis.cache,topic://zs.aa.ss.redis.cache");
+死信队列(用来保存处理过期或失败的消息)
+    1.事物会话被回滚
+    2.事物会话提交之前关闭
+    3.客户端手动确认模式，调用session.recover
+    4.自动应答失败
+虚拟Destination(解决集群消息队列)--英文翻译终点
+    1.用一个topic虚拟分组发送消息队列
+        session.createTopic("VirtualTopic.vtgroup");
+    2.对于消息接收端来说，是个队列，不同应用里使用不同的前缀作为队列的名称，即可表明自己的身份即可实现消费端应用分组
+        Consumer.A.VirtualTopic. vtgroup、Consumer.B.VirtualTopic. vtgroup
+架构师考虑
+    功能，高性能，高可用，高伸缩，高扩展

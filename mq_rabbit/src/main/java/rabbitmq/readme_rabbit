@@ -1,0 +1,92 @@
+AMQP
+    生产者、消费者、消息
+    信道(一个TCP链接包含N百个信道，信道有唯一ID,信道负责生产者publish、消费者subscribe一个队列的通信)
+    交换器(生产者publish消息到交换器,交换器通过路由键路由到队列)
+        类型
+            1.direct(精准匹配，对于匹配符合的消费者都推送消息)
+            2.fanout(广播式发送，所有消费者均能收到消息)
+            3.topic("."分割路由键,"*"1个匹配,"#"N个匹配)
+            4.headers(通direct差不多)
+        durable:exchange是否是否持久化
+    队列(通过路由键绑定到交换器)生成后，不能修改declare属性
+        exclusive: 队列是否独占
+    绑定
+    路由键
+    无界队列(有无订阅都进入队列中等待)
+        队列->路由键->绑定->交换器,消费者->publish消息->交换器->路由键->队列->消费者subscribe
+    消息确认
+    虚拟主机
+    服务启动不成功
+        1.rabbitmq-service remove
+        2.rabbitmq-service install
+        3.rabbitmq-service start
+        4.rabbitmq-plugins enable rabbitmq_management
+        http://127.0.0.1:15672/
+        帐号密码：guest/guest
+    流程：
+        1.创建连接工厂(ConnectionFactory,设置用户、密码、host、port、虚拟主机)new ConnectionFactory();
+        2.newConnection, factory.newConnection();
+        3.常见chanle, connection.createChannel();addConfirmListener、addReturnListener
+        4.创建交换器(4种), channel.exchangeDeclare(EXCHANGE, BuiltinExchangeType.DIRECT);
+        5.生产者:给路由键发送消息
+            mandtory: publish消息失败后通知发送者addConfirmListener
+                                 交换器         路由键   失败确认
+            channel.basicPublish(EXCHANGE_NAME,severity,true,null,message.getBytes());
+            失败确认(消息发布失败,把消息返回给发布者,channel.addReturnListener)
+          消费者:
+            创建queue队列,queueDeclare
+                                     (队列名,durable持久化,exclusive独占队列,autoDelete自动删除)
+                channel.queueDeclare(queueName,false,false,false,null);
+            绑定queue队列,queueBind
+                channel.queueBind(queueName, TestProducter.EXCHANGE, routingKey);
+            通过Consumer消费消息(chanel.baseCosum)
+                channel.basicConsume(queueName, new DefaultConsumer(channel){.. .. handleDelivery(){..}})
+        6.关闭信道、连接
+            connection.addShutdownListener、channel.addShutdownListener
+    事物(重,运行效率低)
+        1.channel.txSelect()声明启动事务模式；
+        2.channel.txComment()提交事务；
+        3.channel.txRollback()回滚事务；
+    发送方确认模式(轻量)
+        channel.confirmSelect();//启用发送者确认模式
+        1.channel.addConfirmListener()异步监听发送方确认模式
+        2.channel.waitForConfirms()普通发送方确认模式；消息到达交换器，就会返回true
+        3.channel.waitForConfirmsOrDie()批量确认模式；
+    备用交换器
+        通过参数声明备用交换器argsMap.put("alternate-exchange",BAK_EXCHANGE_NAME);
+消息的消费
+    获取方式
+        拉取GET(通过轮询获取GetResponse = channel.basicGet)
+        推送Consume(注册Comsumer进行消费)
+    消息应答(声明消费者的时候可以选择是否自动应答 autoAck)
+        自动应答
+        手动应答(通过异常处理，在异常中进行消息拒绝,拒绝后消息会重新发送给其他消费者消费)
+    QoS预取模式(消息的批量处理,存在消息在确认之前崩溃,未确认的消息会重新发送其他消费者)
+        一次取N条 channel.basicQos(150,true);//是否对当前chanel所有消费者生效
+        批量确认basicAck(xx, true)
+    消息的拒绝(消息消费异常,拒绝回mq,进行重新发送给其他消费者消费)
+        reject 拒绝单条消息channel.basicReject(envelope.getDeliveryTag(),false);
+        Nack 多条拒绝
+    死信交换器DLX(通备用交换器同样是普通交换器,在队列声明参数 x-dead-letter-exchange 开启,x-dead-letter-routing-key)
+        1.消息被拒绝,requeue参数为false
+        2.消息过期
+        3.队列达到最长长度
+    死信和备用的区别
+        1.备用是路由失败的消息，死信是路由成功拒绝或未响应的消息
+        2.备用是在队列申明，死信是在交换器申明
+控制队列
+    自动删除队列(auto-delete,申明队列,消费者断开连接,自动删除)
+    单消费者队列(exclusive)
+    永久队列(durable)
+    自动过期队列(队列超过一定时间未使用,删除,x-expires,队列超时时间,x-message-ttl,消息存活时间,过去进入死信队列)
+Spring(未申明队列会报错)
+    连接工厂、声明队列、交换器、template模版发送消息、接收消息
+    ConnectionFactory、RabbitAdmin、RabbitTemplate
+构建集群
+    集群常用命令
+    rabbitmqctl join_cluster [rabbit@node1]将节点加入集群
+    rabbitmqctl cluster_status 查询集群状态
+    rabbitmqctl stop_app
+    rabbitmqctl reset 将node节点恢复为空白状态,集群下，通过这个命令，可以让节点离开集群(不使用会一直等待该节点恢复才允许新节点加入,可能导致集群永久性的无法变更)。
+    rabbitmqctl start_app
+高可用
