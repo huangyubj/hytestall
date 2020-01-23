@@ -21,6 +21,9 @@
         <module>dubbo</module>
         <module>transaction</module>
         <module>sso</module>
+        <module>ssosharetest</module>
+        <module>ssotest</module>
+        <module>sessionshare</module>
         <module>schedule</module>
         <module>netty</module>
         <module>design_patterns</module>
