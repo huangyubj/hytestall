@@ -3,7 +3,6 @@ package concurrent.delayqueue;
 import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.DelayQueue;
-
 public class TestDelayedQueue {
 	private static DelayQueue<DelayedTest<ExamVO>> queue = new DelayQueue<DelayedTest<ExamVO>>();
 

@@ -77,10 +77,12 @@ pipeline|
 > TCP/IP协议中，无论多少数据都要加上协议头，同时接受到消息后要进行ACK确认，
 >为了尽可能利用带宽，TCP/IP每次都希望发送的数据包足够大，Nagle算法就是为了
 >能够尽可能发送大数据块
+
 #####TCP延迟确认
 > 服务收到消息不会立马ACK，会等待一个事件t，等待服务返回给客户端的数据包，
 >ACK随数据包返回，如果超了t，会直接ACK，通过设置TCP_QUICKACK可以取消确
 >认延迟
+
 ####粘包/半包现象
 >一个数据包在转为字节码传输过程中，被拆分，接收时，数据包不完整，导致的解码错误
 
@@ -92,8 +94,8 @@ pipeline|
 >>- `int maxFrameLength`:包最大长度,
 >>- `int lengthFieldOffset`: 长度域偏移量，即长度域所在的位置下标
 >>- `int lengthFieldLength`:长度域长度
->>- `int lengthAdjustment`:偏移量矫正
->>- `int initialBytesToStrip`:丢弃起始字节
+>>- `int lengthAdjustment`:偏移量矫正,解码后的长度-长度域定义的长度
+>>- `int initialBytesToStrip`:丢弃的起始字节数
 ```
 for (int j = 0; j < 100; j++) {
     ByteBuf buf = Unpooled.buffer();

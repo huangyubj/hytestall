@@ -19,7 +19,6 @@ JMS(Java Message Service)java关于消息中间件的规范
     4.JMS目的  Destination
     5.JMS生产者/消费者Productoer/Consumer
     6.消息发送/注册消息监听
-    7.
 JMS消息
     消息头
     消息属性
