@@ -58,5 +58,34 @@
 >- 请求处理事件(`RequestHandledEvent`):在Web应用中，当一个http请求(request)结束 触发该事件。
 14. FileSystemResource 和 ClassPathResource 有何区别?
 >- ClassPathResource 在环境变量中读取配置文件
->- FileSystemResource 在配置文件 中读取配置文件
+>- FileSystemResource 在加载的配置文件 中读取配置文件
 
+15. spring容器的初始化过程
+>- 1.`prepareRefresh`（prepare 准备）校验环境、属性、数据正确性
+>- 2.`obtainFreshBeanFactory`（obtain (尤指经努力) 获得，赢得; 存在; 流行; 沿袭）
+ 获取BeanFactory实例，
+>- 3.`prepareBeanFactory`，再准备BeanFactory的后续工作，包含注册classLoader类加载器
+resource环境 Aware接口等
+>- 4.postProcessBeanFactory（spring预留自定义增强BeanFactory接口）
+>- 5.`invokeBeanFactoryPostProcessors` （invokeBFPP 调用执行BeanFactory的增强器，
+包括用户自定义扩展的增强器）
+>- 6.`registerBeanPostProcessors`（registBPP 注册其他bean增强器，包括`AOP`，
+`Transaction`等都在此注册，注册按照PriorityOrdered、Ordered、None进行注册，）
+>- 7.initMessageSource（国际化，初始化信息源，注册`messageSource`的bean实例可实现自定义国际化）
+>- 8initApplicationEventMulticaster（初始化事件派发器，
+注册applicationEventMulticaster实例可实现自定义事件派发器）
+>- 9.onrefresh（spring预留自定义扩展接口）
+>- 10.registerListeners（给容器中将所有项目里面的ApplicationListener注册进来）
+>- 11.`finishBeanFactoryInitialization`（finish init 加载bean，`单实例非懒加载bean`，将在此初始化，详细情况如下：）
+>>- 先获取`RootBeanDefinition`bean实例定义
+>>- 获取一个BeanWrapper，包装bean
+>>- 正式实例化前
+>>- initializeBean进行bean实例化
+>>>+ Aware接口调用
+>>>+ BeanPostProcessor 前置增强调用，如果此时获取到实例bean则返回实例
+>>>+ bean实例化前被调用，如：InitializingBean接口、指定的init-method
+>>>+ BeanPostProcessor后置增强调用，如：AOP、Transaction等advisor在此注册
+>>>>* getAdvicesAndAdvisorsForBean,获取所有Advisors增强到bean上，供方法增强
+>时使用
+
+>- 12.finishRefresh（finish 结束）

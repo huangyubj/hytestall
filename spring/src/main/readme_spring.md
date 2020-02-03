@@ -126,7 +126,7 @@ resource环境 Aware接口等
 >时使用
 12. finishRefresh（finish 结束）
 
-13. REST风格传递参数
+##### REST风格传递参数
 ```
 // {blogName}、{year}作为占位符!!!
 	/* =========/testPathVariable/codinglin/2019
