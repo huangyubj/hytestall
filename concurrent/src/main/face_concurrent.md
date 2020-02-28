@@ -69,3 +69,11 @@
 16. 线程之间怎么通信
 >- 共享内存
 >- 消息传递java中通常通过 wait()和notify()传递消息
+
+17. WAITING状态
+>- 线程通过Object.wait()方法进入WAINTING状态，只有当Object.notify()/Object.notifyAll()
+>的时候唤醒，进入RUNNABLE
+>- 线程通过Thread.join() 将自己加入到线程B中，进入WAITING状态，直到线程B执行完成，当前
+>线程进入RUNNABLE
+>- ThreadSupport.park(thread),指定线程进入WAITING状态，通过ThreadSupport.unPark(thread)
+> 唤醒进入RUNNABLE状态
