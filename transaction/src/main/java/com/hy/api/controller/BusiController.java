@@ -1,4 +1,4 @@
-package com.hy.busi.controller;
+package com.hy.api.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

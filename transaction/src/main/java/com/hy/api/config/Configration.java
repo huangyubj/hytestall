@@ -1,4 +1,4 @@
-package com.hy.busi.config;
+package com.hy.api.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
