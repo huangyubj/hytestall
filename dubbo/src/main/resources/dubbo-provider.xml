@@ -1,0 +1,25 @@
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
+
+<!--     应用配置，不要与提供方相同 -->
+    <dubbo:application name="springboot-dubbo-provider"/>
+
+<!--     注册中心配置，使用zookeeper注册中心暴露服务地址 -->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181" timeout="60000" />
+
+    <dubbo:protocol name="dubbo" port="20880" />
+
+    <!--    关闭服务消费方所有服务的启动检查。dubbo缺省会在启动时检查依赖的服务是否可用，不可用时会抛出异常，阻止Spring初始化完成。-->
+    <dubbo:consumer check="false" />
+
+<!--     使用注解方式暴露接口，会自动扫描package下所有包中dubbo相关的注解，这样就不用在xml中再针对每个服务接口配置dubbo:service interface-->
+<!--    <dubbo:annotation package="com.hy.provider.service"/>-->
+<!--  loadbalance  random,roundrobin,leastactive，分别表示：随机，轮询，最少活跃调用-->
+    <!--  async  是否缺省异步执行，不可靠异步，只是忽略返回值，不阻塞执行线程-->
+<!-- cluster   集群方式，默认failover 可选：failover/failfast/failsafe/failback/forking-->
+    <dubbo:service group="" timeout="3000" retries="3" loadbalance="leastactive" async="false" cluster="failover"  interface="com.hy.api.service.InfoService" ref="infoServiceImpl" />
+    <dubbo:service interface="com.hy.api.service.UnknowService" ref="unknowServiceImpl" />
+</beans>

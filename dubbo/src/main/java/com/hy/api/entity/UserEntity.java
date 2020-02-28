@@ -1,4 +1,4 @@
-package com.hy.busi.entity;
+package com.hy.api.entity;
 
 import java.io.Serializable;
 

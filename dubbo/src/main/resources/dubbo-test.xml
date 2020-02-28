@@ -1,0 +1,22 @@
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
+
+<!--     应用配置，不要与提供方相同 -->
+    <dubbo:application name="dubbo-consumer-test"/>
+
+<!--     注册中心配置，使用zookeeper注册中心暴露服务地址 -->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181" timeout="60000" />
+
+    <!--全局配置-->
+    <dubbo:provider timeout="3000" />
+    <dubbo:consumer timeout="1000" check="false"/>
+<!--     使用注解方式创建远程服务代理-->
+<!--    <dubbo:annotation package="com.practice.springboot.dubbo.consumer"/>-->
+<!--    声明服务引用，与服务声明接口类型一致-->
+    <dubbo:reference id="infoServiceImpl" check="false" interface="com.hy.api.service.InfoService"/>
+    <!--泛化调用-->
+    <dubbo:reference id="unknowServiceImpl" interface="com.hy.api.service.UnknowService" generic="true" />
+</beans>

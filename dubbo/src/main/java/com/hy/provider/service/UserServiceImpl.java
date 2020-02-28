@@ -1,7 +1,7 @@
-package com.hy.productor.service;
+package com.hy.provider.service;
 
-import com.hy.busi.entity.UserEntity;
-import com.hy.busi.service.UserService;
+import com.hy.api.entity.UserEntity;
+import com.hy.api.service.UserService;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;

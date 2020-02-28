@@ -1,6 +1,6 @@
-package com.hy.busi.service;
+package com.hy.api.service;
 
-import com.hy.busi.entity.UserEntity;
+import com.hy.api.entity.UserEntity;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
