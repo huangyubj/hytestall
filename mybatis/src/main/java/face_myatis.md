@@ -1,16 +1,16 @@
 1. mybatis简介，(所有相关回答均可从此开始起手式)
 > MyBatis 是一个可以自定义 SQL、存储过程和高级映射的持久层框架,
 >- 高版本的JDBC已采用`SPI加载驱动`
->- Cache采用`装饰器模式`封装了如FIFO、LRU、Schedule等缓存器,利于针对cache扩展增强
->- 日志Logging采用`适配器模式`扩展
->- Excutor采用`模版模式`进行扩展不同的Excutor
+>- `Cache采用装饰器模式`封装了如FIFO、LRU、Schedule等缓存器,利于针对cache扩展增强
+>- `日志Logging采用适配器模式`扩展
+>- `Excutor采用模版模式`进行扩展不同的Excutor
 2. mybatis的缓存
-> MyBatis 的缓存分为`一级缓存`和`二级缓存`,一级缓存放在`session`里面，在select上通过flushCache开启和关闭,默认为true,
+> MyBatis 的缓存分为`一级缓存`和`二级缓存`,一级缓存放在`session`里面，在select上通过`flushCache`开启和关闭,默认为true,
 > 二级缓存放在它的`命名空间`里,使用二级缓存属性类需要实现
 > 序列化,可在它的映射文件中配置<cache/>
 > ，当进行Insert、update、delete操作会清除对应缓存
 3. mybatis如何进行分页
-> mybatis使用RowBounds进行分页，也可以使用sql limit进行分页，或使用分页插件
+> mybatis使用`RowBounds`进行分页，也可以使用sql `limit`进行分页，或使用`分页插件`
 4. mybatis的插件运行原理
 >+ Mybatis 仅可以编写针对 `ParameterHandler、ResultSetHandler、StatementHandler、
 > Executor` 这 4 种接口的插件，Mybatis 通过动态代理，为需要拦截的接口生成代理对象
@@ -20,11 +20,11 @@
 >+ 实现 Mybatis 的 `Interceptor 接口并复写 intercept()`方法，然后在给插件编写注解，
 >指定 要拦截哪一个接口的哪些方法即可
 5. Mybatis 动态 sql 是做什么的?都有哪些动态 sql?
-> Mybatis 动态 sql 可以让我们在 Xml 映射文件内，以标签的形式编写动态 sql，
+> Mybatis 动态 sql 可以让我们在 Xml 映射文件内，以标`签的形式编写动态 sql`，
 > 完成逻辑判断和动态拼接 sql 的功能,提供了9种动态sql标签
 >* trim、where、set、foreach、if、choose、when、otherwise、bind
 6. #{}和${}的区别是什么?
-> #{}是预编译处理，可以防止sql注入，${}是字符串替换
+> #{}是`预编译`处理，可以防止sql注入，${}是`字符串替换`
 7. Mybatis 的延迟加载是什么
 > Mybatis 仅支持 association 一对一关联对象和 collection 一对多关联集合对象的延迟加载
 > 。可以通过 `lazyLoadingEnabled`=true|false来配置是否启用延迟加载<br>
@@ -50,11 +50,45 @@
 12. Mybatis 都有哪些 Executor 执行器
 > Mybatis 有三种基本的 Executor 执行器，`SimpleExecutor`、`ReuseExecutor`、
 > `BatchExecutor`，可在配置文件中指定Executor或创建session时指定ExecutorType.xxx
->- SimpleExecutor:每执行一次 update 或 select，就开启一个 Statement 对象，
+>- SimpleExecutor:每执行一次 update 或 select，就开启`一个 Statement` 对象，
 > 用完立刻关闭 Statement 对象
 >- ReuseExecutor:执行 update 或 select，以 sql 作为 key 查找 Statement 对象，
-> 存在就使用，不存在就创建，用完后，不关闭 Statement 对象， 而是放置于Map
+> 存在就使用，不存在就创建，用完后，`不关闭 Statement 对象`， 而是放置于Map
 >- BatchExecutor是完成批处理
 13. resultType resultMap 的区别?
 >- 类的名字和数据库相同时，可以直接设置 resultType 参数为 Pojo 类
 >- 若不同，需要设置 resultMap 将结果名字和 Pojo 名字进行转换
+
+14. mbatis 源码全过程
+```
+//level1:整个创建过程包含二进制流文件解析
+String resource = "mybatis-config.xml";
+inputStream = Resources.getResourceAsStream(resource);
+sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+
+    //level2:(加载配置，初始化)
+    new XMLConfigBuilder(inputStream, environment, properties);
+        //level3:读取xml字节流转为document可操作对象
+        new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()
+        //level3:将configuration内容解析为一个Configration
+        //含 settings(先加载默认，在进行覆盖)、properties、typeAliases、plugins、
+        //(objectFactory、objectWrapperFactory、reflectorFactory可以自定义覆盖)、
+        //environments(解析datasource)、
+            XMLConfigBuilder.parse()
+            //level4:XmlMapperBuilder解析mapper文件最终注册到MapperRegistry中
+```
+```
+SqlSession session = sqlSessionFactory.openSession();
+//通过解析注册到MapperRegistry获取MapperProxyFactory
+//通过反射获取一个Mapper实例MapperProxy代理Mapper
+CscLineMapper mapper = session.getMapper(CscLineMapper.class);
+//通过MapperMethod方法执行(此处mapperMethod做了缓存)
+//MapperMethod.execute 通过操作类型(增删改查)执行了sqlsession对应的方法
+//sqlsession通过Executor模版执行操作(Spring的SqlSessionTemplate也是通过对SqlSession的实现)
+//从BaseExecutor能看到增、删、改都会清空缓存,查询会优先查询缓存
+//Executor操作通过
+//StatementHandler处理操作
+//ParameterHandler处理参数
+//ResultSetHandler处理查询结果
+CscLine cscLine = mapper.selectByPrimaryKey(1000463l);
+```

@@ -29,6 +29,7 @@
         <module>design_patterns</module>
         <module>spring</module>
         <module>dubbo</module>
+        <module>dubbo</module>
     </modules>
 
 
