@@ -1,7 +1,7 @@
 package com.hy.rmi;
 
-import com.hy.busi.service.UserService;
-import com.hy.productor.service.UserServiceImpl;
+import com.hy.api.service.UserService;
+import com.hy.provider.service.UserServiceImpl;
 
 import java.net.MalformedURLException;
 import java.rmi.AlreadyBoundException;
