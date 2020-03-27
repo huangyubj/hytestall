@@ -58,3 +58,17 @@
 13. resultType resultMap 的区别?
 >- 类的名字和数据库相同时，可以直接设置 resultType 参数为 Pojo 类
 >- 若不同，需要设置 resultMap 将结果名字和 Pojo 名字进行转换
+14. Mybatis 源码解读
+>- 已二进制字节流的形式读取mybatis-config文件，转为document可操作对象，
+>- 将配置中的configuration内容解析为一个Configration对象，含 settings(先加载默认，在进行覆盖)、properties、typeAliases、plugins
+>- XmlMapperBuilder解析mapper文件最终注册到MapperRegistry中
+>- 通过解析注册到MapperRegistry获取MapperProxyFactory
+>- 通过反射获取一个Mapper实例MapperProxy代理Mapper
+>- 通过MapperMethod方法执行(此处mapperMethod做了缓存)
+>- MapperMethod.execute 通过操作类型(增删改查)执行了sqlsession对应的方法
+>- sqlsession通过Executor模版执行操作(Spring的SqlSessionTemplate也是通过对SqlSession的实现)
+>- 从BaseExecutor能看到增、删、改都会清空缓存,查询会优先查询缓存
+>- Executor操作通过
+>- StatementHandler处理操作
+>- ParameterHandler处理参数
+>- ResultSetHandler处理查询结果
