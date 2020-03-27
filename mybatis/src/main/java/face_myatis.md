@@ -62,7 +62,7 @@
 >- 已二进制字节流的形式读取mybatis-config文件，转为document可操作对象，
 >- 将配置中的configuration内容解析为一个Configration对象，含 settings(先加载默认，在进行覆盖)、properties、typeAliases、plugins
 >- XmlMapperBuilder解析mapper文件最终注册到MapperRegistry中
->- 通过解析注册到MapperRegistry获取MapperProxyFactory
+>- 获取执行实例时通过解析注册到MapperRegistry获取MapperProxyFactory
 >- 通过反射获取一个Mapper实例MapperProxy代理Mapper
 >- 通过MapperMethod方法执行(此处mapperMethod做了缓存)
 >- MapperMethod.execute 通过操作类型(增删改查)执行了sqlsession对应的方法
