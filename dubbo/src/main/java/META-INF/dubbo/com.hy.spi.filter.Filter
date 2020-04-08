@@ -1,5 +1,5 @@
-A=com.hy.spi.filter.impl.FilterA
-B=com.hy.spi.filter.impl.FilterB
-C=com.hy.spi.filter.impl.FilterC
-D=com.hy.spi.filter.impl.FilterD
-E=com.hy.spi.filter.impl.FilterE
+a=com.hy.spi.filter.impl.FilterA
+b=com.hy.spi.filter.impl.FilterB
+c=com.hy.spi.filter.impl.FilterC
+d=com.hy.spi.filter.impl.FilterD
+e=com.hy.spi.filter.impl.FilterE

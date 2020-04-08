@@ -4,7 +4,7 @@ import com.alibaba.dubbo.common.extension.Activate;
 import com.hy.spi.filter.Filter;
 
 
-@Activate(group = {"A","B","C","D","E"}, order = 1, value = "A")
+@Activate(group = {"A","B","C","D","E"}, order = 1)
 public class FilterA implements Filter {
 
     public Object invoke(Object... args) {
