@@ -1,10 +1,37 @@
 package com.hy;
 
+import com.alibaba.dubbo.common.URL;
+import com.alibaba.dubbo.common.extension.ExtensionLoader;
 import com.alibaba.dubbo.rpc.service.EchoService;
 import com.alibaba.dubbo.rpc.service.GenericService;
+import com.hy.spi.filter.Filter;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.util.List;
+
 public class Test {
+
+    @org.junit.Test
+    public void testAdaptive(){
+
+    }
+
+    @org.junit.Test
+    public void testActivate(){
+        ExtensionLoader<Filter> extensionLoader = ExtensionLoader.getExtensionLoader(Filter.class);
+//        extensionLoader.getExtension("a").invoke();
+        URL url = URL.valueOf("test://localhost/test");
+        url = url.addParameter("asd", "66666");
+        url = url.addParameter("diyFilter", "c,d,-a");
+        //key 是从URL中的参数名称来获取值进行自定义过滤。名称按","分割，"-名称" 表示不加载
+        //gourp用来过滤分组
+        //URL中的参数是用来过滤vlue的，如果Activate配置了value，需要满足URL中的参数key
+        List<Filter> list = extensionLoader.getActivateExtension(url, "diyFilter", "B");
+        System.out.println("----"+list.size());
+        for (Filter ft : list) {
+            ft.invoke();
+        }
+    }
     /**
      * 回声测试：扫一遍服务是否都已就绪
      */
