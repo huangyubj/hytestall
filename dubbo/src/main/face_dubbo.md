@@ -142,8 +142,7 @@
 Spring、Springboot的优势之上，两个框架的开始目标就不一致，Dubbo定位服务治理，
 Spring Cloud 是一个生态
 
-20. Dubbo的SPI
-
+20. 
 
 
 

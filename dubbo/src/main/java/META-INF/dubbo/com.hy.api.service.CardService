@@ -1,0 +1,3 @@
+a=com.hy.spi.filter.card.AdCardService
+b=com.hy.spi.filter.card.BdCardService
+c=com.hy.spi.filter.card.CdCardService
