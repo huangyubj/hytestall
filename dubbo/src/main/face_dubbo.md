@@ -142,7 +142,35 @@
 Spring、Springboot的优势之上，两个框架的开始目标就不一致，Dubbo定位服务治理，
 Spring Cloud 是一个生态
 
-20. 
+20. Dubbo的SPI
+> SPI 是service provider interface ，是一种服务发现机制，SPI 的本质是将接口实现类的全限定名配置在文件中，  
+> 并由服务加载器读取配置文件，加载实现类。这样可以在运行时，动态为接口替换实现类。Dubbo SPI对java原生的SPI做了增强
+> - getExtensionLoader 获取一个 ExtensionLoader 实例
+> - getExtension 方法获取拓展类对象，检查缓存，缓存未命中则创建拓展对象，<br/>
+> 通过Holder 获取持有对象，缓存不存在则创建新的Holder，Holder没有持有实例创建持有实例
+> - createExtension(name);创建拓展对象
+>> -  getExtensionClasses().get(name);从配置文件(META-INF/dubbo、META-INF/dubbo/internal/、META-INF/service/、)中加载所有的拓展类，可得到“配置项名称”到“配置类”的映射关系表,
+>> 通过反射创建实例,向实例中注入依赖
+>>> - loadExtensionClasses 方法总共做了两件事情，一是对 SPI 注解进行解析，二是调用 loadDirectory 方法加载指定文件夹配置文件
+> > > - loadResource 加载解析配置的实现健值类、loadClass 根据解析出来的包名通过反射加载类
+> > - injectExtension(instance); 向实例中注入依赖,利用SpiExtensionFactory、SpringExtensionFactory
+> > AdaptiveExtensionFactory来完成IOC注入
+> > -  将当前 instance 作为参数传给 Wrapper 的构造方法，并通过 加载实现类。这样可以在运行时，动态为接口替换实现类。Dubbo SPI对java原生的SPI做了增强
+> - getExtensionLoader 获取一个 ExtensionLoader 实例
+> - getExtension 方法获取拓展类对象，检查缓存，缓存未命中则创建拓展对象，<br/>
+> 通过Holder 获取持有对象，缓存不存在则创建新的Holder，Holder没有持有实例创建持有实例
+> - createExtension(name);创建拓展对象
+>> -  getExtensionClasses().get(name);从配置文件(META-INF/dubbo、META-INF/dubbo/internal/、META-INF/service/、)中加载所有的拓展类，可得到“配置项名称”到“配置类”的映射关系表,
+>> 通过反射创建实例,向实例中注入依赖
+>>> - loadExtensionClasses 方法总共做了两件事情，一是对 SPI 注解进行解析，二是调用 loadDirectory 方法加载指定文件夹配置文件
+> > > - loadResource 加载解析配置的实现健值类、loadClass 根据解析出来的包名通过反射加载类
+> > - injectExtension(instance); 向实例中注入依赖,利用SpiExtensionFactory、SpringExtensionFactory
+> > AdaptiveExtensionFactory来完成IOC注入
+> > -  将当前 instance 作为参数传给 Wrapper 的构造方法，并通过反射创建 Wrapper 实例。
+> > 然后向 Wrapper 实例中注入依赖，最后将 Wrapper 实例再次赋值给 insta反射创建 Wrapper 实例。
+> > 然后向 Wrapper 实例中注入依赖，最后将 Wrapper 实例再次赋值给 instance 变量
+
+
 
 
 
