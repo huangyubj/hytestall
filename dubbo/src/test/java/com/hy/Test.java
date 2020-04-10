@@ -4,6 +4,7 @@ import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.common.extension.ExtensionLoader;
 import com.alibaba.dubbo.rpc.service.EchoService;
 import com.alibaba.dubbo.rpc.service.GenericService;
+import com.hy.api.service.CardService;
 import com.hy.spi.Robot;
 import com.hy.spi.filter.Filter;
 import com.sun.tools.javac.util.ServiceLoader;
@@ -39,7 +40,15 @@ public class Test {
 
     @org.junit.Test
     public void testAdaptive(){
-
+        ExtensionLoader<CardService> extensionLoader = ExtensionLoader.getExtensionLoader(CardService.class);
+        extensionLoader.getDefaultExtension().say();
+        CardService cardService = extensionLoader.getAdaptiveExtension();
+//        cardService.say();
+        //Adpative 定义的value为参数名称，对应参数值为 SPI配置文件对应的名称
+        //注解方法，构建一个String的代码串， Dubbo通过  javassist 或 jdk 编译生成class，
+        URL url = URL.valueOf("test://localhost/test?key=b");
+        System.out.println(url.getParameter("key","c"));;
+        cardService.say("hello adaptive", url);
     }
 
     @org.junit.Test
