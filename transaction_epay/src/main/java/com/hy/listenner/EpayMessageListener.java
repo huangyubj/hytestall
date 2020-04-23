@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * 用来处理需要自定义的监听
  */
 @Component
-public class ContainMessageListener implements ChannelAwareMessageListener {
+public class EpayMessageListener implements ChannelAwareMessageListener {
 
     public void onMessage(Message message, Channel channel) throws Exception {
         try{
