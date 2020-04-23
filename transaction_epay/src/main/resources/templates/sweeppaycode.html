@@ -8,9 +8,10 @@
 <h1>pay</h1>
 
 <form action="#" th:action="@{/dopay}" th:object="${message}" method="post">
-    <p>Id: <input type="text" th:field="*{id}" /></p>
-    <p>Message: <input type="text" th:field="*{content}" /></p>
-    <p><input type="submit" value="Submit" /> <input type="reset" value="Reset" /></p>
+    <p>支付人id: <input type="text" th:field="*{id}" /></p>
+    <p>收款人id: <input type="text" th:field="*{id}" /></p>
+    <p>支付金额: <input type="number" th:field="*{content}" /></p>
+    <p><input type="submit" value="支付" /> <input type="reset" value="Reset" /></p>
 </form>
 
 </body>

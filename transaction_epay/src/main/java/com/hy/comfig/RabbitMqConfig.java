@@ -1,6 +1,7 @@
 package com.hy.comfig;
 
-import com.hy.util.Constant;
+import com.hy.constan.CommonStatusConstant;
+import com.hy.listenner.EpayMessageListener;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.Queue;
@@ -24,7 +25,7 @@ public class RabbitMqConfig {
 
         @Bean("messagePayQueue")
         public Queue messagePayQueue(){
-            Queue queue = new Queue(Constant.MESSAGE_PAY_QUEUE);
+            Queue queue = new Queue(CommonStatusConstant.MESSAGE_QUEUE_SEND);
             return queue;
         }
 
@@ -62,9 +63,9 @@ public class RabbitMqConfig {
         public SimpleMessageListenerContainer getSimpleMessageListenerContainer(ConnectionFactory connectionFactory){
             SimpleMessageListenerContainer messageListenerContainer = new SimpleMessageListenerContainer();
             messageListenerContainer.setConnectionFactory(connectionFactory);
-            messageListenerContainer.setQueues(new Queue("message_queue"));
+            messageListenerContainer.setQueues(new Queue(CommonStatusConstant.MESSAGE_QUEUE_RECEIVE));
             messageListenerContainer.setAcknowledgeMode(AcknowledgeMode.MANUAL);//手动确认
-            messageListenerContainer.setMessageListener(new ContainMessageListener());
+            messageListenerContainer.setMessageListener(new EpayMessageListener());
             messageListenerContainer.start();
             return messageListenerContainer;
         }
