@@ -31,6 +31,7 @@
         <module>transaction_yuebao</module>
         <module>transaction_epay</module>
         <module>transaction_common</module>
+        <module>falshsales</module>
     </modules>
 
 
