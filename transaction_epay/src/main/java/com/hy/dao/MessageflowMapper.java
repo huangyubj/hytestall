@@ -1,4 +1,4 @@
-package com.hy.mapper;
+package com.hy.dao;
 
 import com.hy.entity.Messageflow;
 

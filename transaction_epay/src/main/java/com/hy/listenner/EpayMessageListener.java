@@ -11,6 +11,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class EpayMessageListener implements ChannelAwareMessageListener {
 
+    /**
+     * 处理支付成功的消息
+     * @param message
+     * @param channel
+     * @throws Exception
+     */
     public void onMessage(Message message, Channel channel) throws Exception {
         try{
             String msg = new String(message.getBody());
