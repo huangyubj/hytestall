@@ -12,7 +12,6 @@
 //import org.springframework.transaction.annotation.Transactional;
 //
 //import java.sql.Date;
-//import java.sql.SQLException;
 //import java.util.Collections;
 //import java.util.HashMap;
 //import java.util.List;
@@ -25,7 +24,7 @@
 //
 //@Transactional(rollbackFor = Exception.class)
 //@Service
-//public class OrderServiceImpl implements OrderService {
+//public class OrderServiceImpl__temp implements OrderService {
 //    private static final String CATALOG_TOTAL = "catalog_total";
 //    private static final String CATALOG_SOLD = "catalog_sold";
 //    private static final String LOCKED_SOLD = "locked_catalog_sold";

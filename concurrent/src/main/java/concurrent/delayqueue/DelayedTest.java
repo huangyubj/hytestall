@@ -23,13 +23,13 @@ public class DelayedTest<T> implements Delayed{
 		return obj;
 	}
 
-	@Override
+//	@Override
 	public int compareTo(Delayed o) {
 		long time = getDelay(TimeUnit.NANOSECONDS) - o.getDelay(TimeUnit.NANOSECONDS);
 		return time > 0 ? 1 : (time == 0 ? 0 : -1);
 	}
 
-	@Override
+//	@Override
 	public long getDelay(TimeUnit unit) {
 		return unit.convert(this.initialDelay - System.nanoTime(), TimeUnit.NANOSECONDS);
 	}

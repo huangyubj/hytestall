@@ -1,6 +1,10 @@
 package com.hy.dao;
 
 import com.hy.entity.Catalog;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
+
+import java.util.List;
 
 public interface CatalogMapper {
     /**
@@ -50,4 +54,11 @@ public interface CatalogMapper {
      * @mbggenerated
      */
     int updateByPrimaryKey(Catalog record);
+
+    List<Catalog> selectAll();
+
+    @Update("update catalog set sold=sold+#{num} where id=#{id} and sold+#{num} <=total")
+    int updateCatalognum(@Param("id") Integer id, @Param("num") Integer num);
+
+
 }

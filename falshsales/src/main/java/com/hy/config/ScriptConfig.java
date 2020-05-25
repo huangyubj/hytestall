@@ -62,4 +62,15 @@ public class ScriptConfig {
         }
         return redisScript;
     }
+    @Bean
+    public RedisScript<Long> lockcatalogScript() {
+        RedisScript<Long> redisScript = null;
+        try {
+            ScriptSource scriptSource = new ResourceScriptSource(new ClassPathResource("/scripts/lockcatalog.lua"));
+            redisScript = RedisScript.of(scriptSource.getScriptAsString(), Long.class);
+        } catch (Exception e) {
+            log.error("error" , e);
+        }
+        return redisScript;
+    }
 }

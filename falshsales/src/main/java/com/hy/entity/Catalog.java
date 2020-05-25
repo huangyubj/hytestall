@@ -162,4 +162,15 @@ public class Catalog extends BaseEntity {
     public void setVersion(Integer version) {
         this.version = version;
     }
+
+    @Override
+    public String toString() {
+        return "Catalog{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", total=" + total +
+                ", sold=" + sold +
+                ", version=" + version +
+                '}';
+    }
 }
