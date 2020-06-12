@@ -32,6 +32,7 @@
         <module>transaction_epay</module>
         <module>transaction_common</module>
         <module>falshsales</module>
+        <module>myspringmvcweb</module>
     </modules>
 
 
