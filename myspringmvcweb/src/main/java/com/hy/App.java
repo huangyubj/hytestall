@@ -1,5 +1,6 @@
 package com.hy;
 
+import com.hy.servlet.DispacherServlet;
 import org.apache.catalina.*;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
@@ -43,21 +44,25 @@ public class App {
         // docBase上下文的基础目录，用于静态文件。相对于服务器主目录必须存在 ({主目录}/webapps/{docBase})
         Context ctx = tomcat.addContext("", /*{webapps}/~*/ "/ROOT");
 
-        Tomcat.addServlet(ctx, "globalServlet", new HttpServlet() {
-            private static final long serialVersionUID = 1L;
+        Tomcat.addServlet(ctx, "dispacherServlet", new DispacherServlet()
 
-            @Override
-            protected void service(HttpServletRequest request, HttpServletResponse response)
-                    throws ServletException, IOException {
-                response.setCharacterEncoding("UTF-8");
-                response.setContentType("text/plain");
-                response.setHeader("Server", "Embedded Tomcat");
-                try (Writer writer = response.getWriter()) {
-                    writer.write("Hello, Embedded Tomcat!");
-                    writer.flush();
-                }
-            }
-        });
+//                new HttpServlet() {
+//            private static final long serialVersionUID = 1L;
+//
+//            @Override
+//            protected void service(HttpServletRequest request, HttpServletResponse response)
+//                    throws ServletException, IOException {
+//                response.setCharacterEncoding("UTF-8");
+//                response.setContentType("text/plain");
+//                response.setHeader("Server", "Embedded Tomcat");
+//                try (Writer writer = response.getWriter()) {
+//                    writer.write("Hello, Embedded Tomcat!");
+//                    writer.flush();
+//                }
+//            }
+//        }
+
+        );
         //生命周期监听
         ctx.addLifecycleListener(new LifecycleListener() {
             public void lifecycleEvent(LifecycleEvent event) {
@@ -77,7 +82,7 @@ public class App {
             }
         });
 
-        ctx.addServletMappingDecoded("/", "globalServlet");
+        ctx.addServletMappingDecoded("/", "dispacherServlet");
 
         try {
             tomcat.start();
