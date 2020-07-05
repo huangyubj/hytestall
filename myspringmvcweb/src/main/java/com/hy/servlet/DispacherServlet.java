@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
 
@@ -22,7 +23,7 @@ public class DispacherServlet extends HttpServlet {
 
     private Map<String, Object> beans = new HashMap<>();
 
-    private Map<String, Object> HandlerMap = new HashMap<>();
+    private Map<String, Object> handlerMap = new HashMap<>();
 
     @Override
     public void init() throws ServletException {
@@ -54,6 +55,21 @@ public class DispacherServlet extends HttpServlet {
     }
 
     private void handlerMapping() {
+        for (Map.Entry<String, Object> entry : beans.entrySet()) {
+            Object instance = entry.getValue();
+            Class<?> clazz = instance.getClass();
+            if(clazz.isAnnotationPresent(HyController.class)){
+                HyController hyController = clazz.getAnnotation(HyController.class);
+                String classpath = hyController.value();
+                Method[]  methods = clazz.getMethods();
+                for (Method method:methods) {
+                    if (method.isAnnotationPresent(HyController.class)){
+                        String methodPath = method.getAnnotation(HyController.class).value();
+                        handlerMap.put(classpath+methodPath, method);
+                    }
+                }
+            }
+        }
 
     }
 
@@ -61,8 +77,8 @@ public class DispacherServlet extends HttpServlet {
         Set<Map.Entry<String, Object>> sets = beans.entrySet();
         Iterator<Map.Entry<String, Object>> iterator = sets.iterator();
         if (iterator.hasNext()) {
-            Object o = iterator.next().getValue();
-            Class clazz = o.getClass();
+            Object instance = iterator.next().getValue();
+            Class clazz = instance.getClass();
             Field[] fields = clazz.getFields();
             for (Field fied: fields) {
                 if(fied.isAnnotationPresent(HyAutoware.class)){
@@ -70,7 +86,12 @@ public class DispacherServlet extends HttpServlet {
                     String key = hyAutoware.value();
                     key = key != null && !"".equals(key) ? key : fied.getType().getName();
                     Object fieldObj = beans.get(key);
-
+                    fied.setAccessible(true);
+                    try {
+                        fied.set(instance, fieldObj);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -97,7 +118,7 @@ public class DispacherServlet extends HttpServlet {
                     HyService service = clazz.getAnnotation(HyService.class);
                     Object obj = clazz.newInstance();
                     String key = service.value();
-                    key = key != null && !"".equals(key) ? key : clazz.getName();
+                    key = key != null && !"".equals(key) ? key : clazz.getSuperclass().getName();
                     beans.put(key, obj);
                     System.out.println(String.format("regist instance----key:%s", key));
                 }
@@ -131,7 +152,11 @@ public class DispacherServlet extends HttpServlet {
 
     public static void main(String[] args) {
         DispacherServlet servlet = new DispacherServlet();
-        servlet.scanPackge("com.hy");
+        try {
+            servlet.init();
+        } catch (ServletException e) {
+            e.printStackTrace();
+        }
     }
 
 }
