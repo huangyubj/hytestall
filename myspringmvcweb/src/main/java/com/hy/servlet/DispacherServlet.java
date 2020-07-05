@@ -1,5 +1,6 @@
 package com.hy.servlet;
 
+import com.hy.annotation.HyAutoware;
 import com.hy.annotation.HyController;
 import com.hy.annotation.HyRequestMapping;
 import com.hy.annotation.HyService;
@@ -10,11 +11,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class DispacherServlet extends HttpServlet {
@@ -59,6 +58,22 @@ public class DispacherServlet extends HttpServlet {
     }
 
     private void ioc() {
+        Set<Map.Entry<String, Object>> sets = beans.entrySet();
+        Iterator<Map.Entry<String, Object>> iterator = sets.iterator();
+        if (iterator.hasNext()) {
+            Object o = iterator.next().getValue();
+            Class clazz = o.getClass();
+            Field[] fields = clazz.getFields();
+            for (Field fied: fields) {
+                if(fied.isAnnotationPresent(HyAutoware.class)){
+                    HyAutoware hyAutoware = fied.getAnnotation(HyAutoware.class);
+                    String key = hyAutoware.value();
+                    key = key != null && !"".equals(key) ? key : fied.getType().getName();
+                    Object fieldObj = beans.get(key);
+
+                }
+            }
+        }
     }
 
     private void instance() {
