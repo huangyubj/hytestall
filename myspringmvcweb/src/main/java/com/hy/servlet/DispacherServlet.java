@@ -4,6 +4,7 @@ import com.hy.annotation.HyAutoware;
 import com.hy.annotation.HyController;
 import com.hy.annotation.HyRequestMapping;
 import com.hy.annotation.HyService;
+import com.hy.handlerAdapter.HyHandlerAdapter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,12 +13,15 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
 
 
 public class DispacherServlet extends HttpServlet {
+
+    private static final String HANDLER_ADAPTER = "com.hy.handlerAdapter.HyHandlerAdapter";
 
     List<String> classNames = new ArrayList<>();
 
@@ -52,6 +56,26 @@ public class DispacherServlet extends HttpServlet {
          * 3.找到对应的Handler，反射调用Method
          * 4.如果Method被Responsebody 注解直接返回字符串
          */
+        System.out.println("getPathInfo-" + req.getPathInfo());
+        System.out.println("getPathTranslated-" + req.getPathTranslated());
+        System.out.println("getContextPath-" + req.getContextPath());
+        System.out.println("getServletPath-" + req.getServletPath());
+        System.out.println("getRequestURI-" + req.getRequestURI());
+        System.out.println("getRequestURL-" + req.getRequestURL());
+        String uri = req.getRequestURI();
+        String context = req.getContextPath();
+        String path = uri.replace(context, "");
+        Method method = (Method) handlerMap.get(path);
+        Object controller = beans.get(path);
+        HyHandlerAdapter hyHandlerAdapter = (HyHandlerAdapter) beans.get(HANDLER_ADAPTER);
+        Object[] args =  hyHandlerAdapter.hand(req, resp, method, beans);
+        try {
+            method.invoke(controller, args);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     private void handlerMapping() {
@@ -64,8 +88,9 @@ public class DispacherServlet extends HttpServlet {
                 Method[]  methods = clazz.getMethods();
                 for (Method method:methods) {
                     if (method.isAnnotationPresent(HyController.class)){
-                        String methodPath = method.getAnnotation(HyController.class).value();
-                        handlerMap.put(classpath+methodPath, method);
+                        String methodPath = classpath + method.getAnnotation(HyController.class).value();
+                        handlerMap.put(methodPath, method);
+                        System.out.println(String.format("add mapping----key:%s", methodPath));
                     }
                 }
             }
@@ -118,7 +143,7 @@ public class DispacherServlet extends HttpServlet {
                     HyService service = clazz.getAnnotation(HyService.class);
                     Object obj = clazz.newInstance();
                     String key = service.value();
-                    key = key != null && !"".equals(key) ? key : clazz.getSuperclass().getName();
+                    key = key != null && !"".equals(key) ? key : clazz.getInterfaces()[0].getName();
                     beans.put(key, obj);
                     System.out.println(String.format("regist instance----key:%s", key));
                 }

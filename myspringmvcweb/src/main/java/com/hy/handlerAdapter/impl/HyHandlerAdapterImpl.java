@@ -12,8 +12,10 @@ import java.util.Map;
 public class HyHandlerAdapterImpl implements HyHandlerAdapter {
     @Override
     public Object[] hand(HttpServletRequest request, HttpServletResponse response, Method method, Map<String, Object> beans) {
-
-
-        return new Object[0];
+        Class[]  paramClazzs = method.getParameterTypes();
+        Object[] args = new Object[paramClazzs.length];
+        Map<String, Object> argumentResolvers =getBeansOfType(beans,
+                ArgumentResolver.class);
+        return args;
     }
 }
