@@ -66,16 +66,20 @@ public class DispacherServlet extends HttpServlet {
         String context = req.getContextPath();
         String path = uri.replace(context, "");
         Method method = (Method) handlerMap.get(path);
-        Object controller = beans.get(path);
-        HyHandlerAdapter hyHandlerAdapter = (HyHandlerAdapter) beans.get(HANDLER_ADAPTER);
-        Object[] args =  hyHandlerAdapter.hand(req, resp, method, beans);
-        try {
-            method.invoke(controller, args);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+        if(null != method){
+            Class clazz = method.getDeclaringClass();
+            Object controller = beans.get(clazz.getName());
+            HyHandlerAdapter hyHandlerAdapter = (HyHandlerAdapter) beans.get(HANDLER_ADAPTER);
+            Object[] args =  hyHandlerAdapter.hand(req, resp, method, beans);
+            try {
+                method.invoke(controller, args);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
         }
+
     }
 
     private void handlerMapping() {
@@ -83,12 +87,14 @@ public class DispacherServlet extends HttpServlet {
             Object instance = entry.getValue();
             Class<?> clazz = instance.getClass();
             if(clazz.isAnnotationPresent(HyController.class)){
-                HyController hyController = clazz.getAnnotation(HyController.class);
-                String classpath = hyController.value();
+                String classpath = "";
+                if(clazz.isAnnotationPresent(HyRequestMapping.class)){
+                    classpath = clazz.getAnnotation(HyRequestMapping.class).value();
+                }
                 Method[]  methods = clazz.getMethods();
                 for (Method method:methods) {
-                    if (method.isAnnotationPresent(HyController.class)){
-                        String methodPath = classpath + method.getAnnotation(HyController.class).value();
+                    if (method.isAnnotationPresent(HyRequestMapping.class)){
+                        String methodPath = classpath + method.getAnnotation(HyRequestMapping.class).value();
                         handlerMap.put(methodPath, method);
                         System.out.println(String.format("add mapping----key:%s", methodPath));
                     }
