@@ -1,10 +1,8 @@
 package com.hy.utils;
 
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -23,8 +21,8 @@ public class LogAspect {
     public void webLog() {
     }
 
-    @Before("webLog()")
-    public void doBefore(JoinPoint joinPoint) throws Throwable {
+    @Around("webLog()")
+    public Object doBefore(ProceedingJoinPoint joinPoint) throws Throwable {
         // 接收到请求，记录请求内容
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
@@ -37,7 +35,19 @@ public class LogAspect {
             String name = (String) enu.nextElement();
             logger.info("name:{},value:{}", name, request.getParameter(name));
         }
+        Object[] args = joinPoint.getArgs();
+        if(request.getRequestURL().toString().indexOf("hello") != -1){
+            for (int i = 0; i < args.length; i++) {
+                System.out.println(args[i]);
+                if(args[i] instanceof String){
+                    args[i] += "哈哈哈哈哈";
+                }
+            }
+        }
+        Object proceed = joinPoint.proceed(args);
+        return proceed;
     }
+
     @AfterReturning(returning = "ret", pointcut = "webLog()")
     public void doAfterReturning(Object ret) throws Throwable {
         // 处理完请求，返回内容

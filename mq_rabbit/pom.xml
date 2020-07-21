@@ -39,6 +39,10 @@
         </dependency>
 
         <!--	springboot rabbitmq-->
+<!--        rabbitmq-plugins.bat enable rabbitmq_management-->
+<!--        http://localhost:15672/
+            guest
+-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>

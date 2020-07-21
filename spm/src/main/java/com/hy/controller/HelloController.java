@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class HelloController {
     private Logger log = LoggerFactory.getLogger(HelloController.class);
     @RequestMapping(value="/hello", method = RequestMethod.GET)
-    public Object sayHello() {
+    public Object sayHello(String msg) {
         log.info("test log");
-        return "hello";
+        return "hello" + msg;
     }
 
 
