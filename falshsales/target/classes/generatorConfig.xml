@@ -34,7 +34,7 @@
         </commentGenerator>
         <!--数据库连接的信息：驱动类、连接地址、用户名、密码 -->
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://localhost:3306/epay?useUnicode=true&amp;characterEncoding=utf8&amp;allowMultiQueries=true&amp;serverTimezone=Asia/Shanghai" userId="root" password="hY6127330Hy" />
+                        connectionURL="jdbc:mysql://localhost:3306/flashsale?useUnicode=true&amp;characterEncoding=utf8&amp;allowMultiQueries=true&amp;serverTimezone=Asia/Shanghai" userId="root" password="hY6127330Hy" />
 
 
         <!-- java模型创建器，是必须要的元素   负责：1，key类（见context的defaultModelType）；2，java类；3，查询类
@@ -66,7 +66,7 @@
                    3，XMLMAPPER：会生成Mapper接口，接口完全依赖XML；
                注意，如果context是MyBatis3Simple：只支持ANNOTATEDMAPPER和XMLMAPPER
            -->
-        <javaClientGenerator targetPackage="com.hy.mapper"    targetProject="src/main/java" type="XMLMAPPER" />
+        <javaClientGenerator targetPackage="com.hy.dao"    targetProject="src/main/java" type="XMLMAPPER" />
 
 
 
