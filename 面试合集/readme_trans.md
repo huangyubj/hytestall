@@ -3,8 +3,8 @@
 >+ 原子性，每一个操作都是原子操作
 >+ 隔离性(isolation)
 ```mysql
-show variable like '%tx_isolation%'
-set session transaction isolation level read uncommit
+show variable like '%tx_isolation%' ;
+set session transaction isolation level read uncommit ;
 ```
 
 1. 未提交读(READ-UNCOMMITED)
@@ -39,8 +39,8 @@ set session transaction isolation level read uncommit
 >- 五、lua脚本，被放进队列时，ab指令是放在一起的，因为ab会顺序一起被执行，成为了原子性动作
 
 
->- 锁的问题是多对一的问题，是多个线程同时访问同一个资源，造成资源状态不一致
->- 事务的问题是一对多的问题，是一个线程进数据库，操作多条sql，其中，某条sql的失败，致使整个业务失去意义
+>- `锁的问题是多对一的问题，是多个线程同时访问同一个资源，造成资源状态不一致`
+>- `事务的问题是一对多的问题，是一个线程进数据库，操作多条sql，其中，某条sql的失败，致使整个业务失去意义`
 
 #### 事物的操作过程
 >- 编程式事务：使用 TransactionTemplate 或者直接使用底层的 TransactionManager 来操作事务 commit 或者 rollback。
@@ -64,7 +64,7 @@ BASE 指的是：
 >- 3pc 在阶段三，可能会因为网络导致参与者无法收到 doCommit 请求或者 abort 请求，
 针对这种情况，参与者都会在等待超时之后，继续进行事务提交
 必须要使用支持XA协议的datasource数据源
-> - 2pc因为要同时锁定两个数据库的数据，事务锁定时间大大延长
+>- 2pc因为要同时锁定两个数据库的数据，事务锁定时间大大延长
 
 2. TCC事务补偿型方案
 > 其将整个业务逻辑的每个分支显式的分成了 Try、Confirm、Cancel 三个操作。Try 部分完成业务的准备工作，confirm 部分完成业务的提交，cancel

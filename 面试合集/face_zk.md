@@ -98,3 +98,11 @@ nginx 只是能调权重，其他需要可控的都需要自己写插件;但是 
 >- Basically available 基本可用
 >- soft state 软状态,即三态的中间态,数据同步过程存在延迟，不影响系统可用性(消息队列排队)
 >- eventually consistent 最终一致性,数据经过一定时间同步，能够达到最终一致的状态
+
+> ZAB理论
+>- leader将写操作转为事务(proposal提议)---leader election leader选举阶段
+>- leader写完数据广播所有follower数据复制 --- Atomic broadcas 广播同步阶段
+>- 等到超过半数follower返回ok,leader向follower发送commit消息
+>- 只要一个服务器提交了proposal,就要确保所有服务器最终都能正确提交proposal,这也是ZAB/BASE最终实现一致的一个体现
+参与选举leader的节点必须是都已经提交了的proposal的follower服务器节点
+新选举的leader节点中含有最高的ZXID,可以避免了leader服务器检查proposal的提交和丢弃工作

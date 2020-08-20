@@ -4,6 +4,9 @@
 >- `Cache采用装饰器模式`封装了如FIFO、LRU、Schedule等缓存器,利于针对cache扩展增强
 >- `日志Logging采用适配器模式`扩展
 >- `Excutor采用模版模式`进行扩展不同的Excutor
+>- `MapperProxy 采用代理模式`进行增强
+>- `SqlSessionFactoryBuilder、XMLConfigBuilder、XMLMapperBuilder、XMLStatementBuilder、CacheBuilder  建造者模式`
+>- `SqlSessionFactory、MapperProxyFactory 工厂模式`
 2. mybatis的缓存
 > MyBatis 的缓存分为`一级缓存`和`二级缓存`,一级缓存放在`session`里面，在select上通过`flushCache`开启和关闭,默认为true,
 > 二级缓存放在它的`命名空间`里,使用二级缓存属性类需要实现

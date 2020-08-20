@@ -16,10 +16,16 @@
 >- 指定的destroyMethod
 4. spring中用到的设计模式
 >- BeanFactory 工厂模式
+>> BeanFactory 提供getBean获取实例，ApplicationContext扩展自BeanFactory
+>提供更多如国际化、上下文监听等扩展功能， 非懒加载单例和非单例采用延迟加载
 >- AOP的代理模式
+>> 通过AnnotationAwareAspectJAutoProxyCreator 实现BeanPostProcessor,
+>实例初始化时进行Advisors增强
+![AOP注册类图](./aop_creator.jpg)
 >- bean的创建单例模式
+>> 采用ConcurrentHashMap 来缓存单例实例
 >- xxxxTemplate的模板模式
->- Advisor的适配器模式
+>- AdvisorAdapter 的适配器模式
 >- ApplicationListener的观察者模式
 5. @Component和@Bean的区别是什么
 >- Component注解类，自动扫包装配实例
