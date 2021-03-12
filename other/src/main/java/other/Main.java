@@ -35,6 +35,7 @@ public class Main {
 //        System.out.println(Integer.valueOf(c3));
         System.out.println(maximumGap(new int[]{3,1,2}));;
         calBits(2);
+        Arrays.sort(args);
     }
 
     private static int[] calBits(int val) {
