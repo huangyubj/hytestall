@@ -80,7 +80,7 @@
 > 状态
 >- 状态(就绪(start)、阻塞(sleep/wait)、运行(running)、结束(安全中断线程))
 
-![线程状态图](./clipboard.png)
+![线程状态图](images/clipboard.png)
 > 线程协作
 >- 等待和通知机制,`wait/notify/notfyAll`(Object方法)，必须要锁，等待和通知的标准范式
 ,notify/notfyAll,notify只能唤醒一次,一般用notifyAll,避免信号丢失
@@ -96,3 +96,5 @@
 >- FokeJoinPool、task(invokeAll()添加子任务、join()合并子任务)）
 >- 分而治之,分治法(阈值N区分进行大任务拆分，递归拆分任务，直到任务可执行)
 >- 工作密取/工作窃取(从头执行，从尾窃取，做完扔回尾部)
+
+19. HashMap、ConcurentHashMap

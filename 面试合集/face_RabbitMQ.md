@@ -12,7 +12,7 @@
 >- `交换器、队列、绑定、路由键`,`队列`通过`路由键`（routing  key，某种确定的规则）`绑定`到`交换器`，
 `生产者`将消息发布到`交换器`，`交换器`根据`绑定`的`路由键`将`消息`路由到特定`队列`，然后由订阅这个队列的`消费者`进行接收
 
-![AMQP模型图](./amqp.jpg)
+![AMQP模型图](images/amqp.jpg)
 
 2. RabbitMQ 中的 Broker 是指什么？Cluster 又是指什么？
 >- broker 是指一个或多个 erlang node 的逻辑分组，且 node 上运行着 RabbitMQ 应用程序

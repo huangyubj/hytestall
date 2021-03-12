@@ -35,7 +35,7 @@
 >- 在action的生命周期里，Interceptor可以被多次调用，而Filter只能在容器初始化时调用一次。
 
 8. spring MVC工作原理
-![Spring MVC 工作原理](./springmvc.png)
+![Spring MVC 工作原理](images/springmvc.png)
 >- 客户端（浏览器）发送请求，直接请求到`DispatcherServlet`。
 >- DispatcherServlet根据请求信息调用`HandlerMapping`，解析请求对应的Handler。
 >- 解析到对应的`Handler`（也就是我们平常说的Controller控制器）。

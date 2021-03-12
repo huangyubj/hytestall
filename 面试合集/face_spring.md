@@ -21,7 +21,7 @@
 >- AOP的代理模式
 >> 通过AnnotationAwareAspectJAutoProxyCreator 实现BeanPostProcessor,
 >实例初始化时进行Advisors增强
-![AOP注册类图](./aop_creator.jpg)
+![AOP注册类图](images/aop_creator.jpg)
 >- bean的创建单例模式
 >> 采用ConcurrentHashMap 来缓存单例实例
 >- xxxxTemplate的模板模式

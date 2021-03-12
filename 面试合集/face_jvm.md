@@ -83,7 +83,13 @@
 >- 扩展类加载器（Extension）,用来加载java的扩展库
 >- 系统类加载器(system class loader)根据 Java 应用的类路径(CLASSPATH) 来加载 Java 类
 >- 应用加载器（Application），用户自定义类加载器，通过继承 java.lang.ClassLoader 类的方式实现。
-10. 性能优化
+10. Java 类加载器（ClassLoader）的实际使用场景有哪些？
+>- 解决依赖冲突，通过自定义类加载器，为每个中间件自定义一个加载器，这些加载器之间的关系是平行的，彼此没有依赖关系。这样每个中间件的classloader就可以加载各自版本的jar包
+>- 热加载
+![热加载流程图](images/hotload.jpg)
+>- 热部署
+>- 加密保护，打包加密，自定义classloader加载class时解密
+11. 性能优化
 >性能优化按结构分可分为3类
 >- 前端
 >>+ 客户端减少请求

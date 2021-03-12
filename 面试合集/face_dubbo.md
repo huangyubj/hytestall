@@ -24,7 +24,7 @@
 
 5. Dubbo服务注册与发现流程
 
-![Dubbo 结构图](./dubbo-architecture.jpg)
+![Dubbo 结构图](images/dubbo-architecture.jpg)
 
 >- 0服务容器Container负责启动，加载，运行服务提供者。
 >- 1服务提供者Provider在启动时，向注册中心Registry注册自己提供的服务。
@@ -41,7 +41,7 @@
 
 7. Dubbo的十层架构设计
 
-![Dubbo 总体架构图](./dubbo.png)
+![Dubbo 总体架构图](images/dubbo.png)
 > Dubbo 总体架构分为10层，左蓝是消费者使用的接口，右绿为服务提供方使用接口，中轴线是双防均用的接口
 >- 服务接口层（Service）：该层是与实际业务逻辑相关的，根据服务提供方和服务消费方的业务设计对应
 > 的接口和实现。
