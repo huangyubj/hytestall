@@ -44,18 +44,32 @@
 >- `CyclicBarrirer `,一组线程全部到达await()屏障后放开屏障执行
 >- `Semaphore` 构建固定连接池，进行acquire池中没有连接进入等待，当release释放会唤醒等待，通常用在流量控制
 12. java中线程池是如何实现的
-> 通过构建`一组worker线程`来执行`BlockingQueue中`的`Runnable/Callable`<br>
-> 通常需要corePoolSize、最大线程数、超过核心线程数的线程存活时间、工作队列<br>
+> 通过构建`一组worker线程`来执行`BlockingQueue中`的`Runnable/Callable`，核心参数有：<br>
+>- corePoolSize  核心线程数量
+>- maximumPoolSize
+>- keepAliveTime
+>- TimeUnit 时间单位
+>- queue 存放任务的队列
+>- ThreadFactory 现场创建工厂
+>- handler 队列满了，线程满了任务的拒绝策略<br>
 > 常用线程池有以下这些
->- SingleThreadExecutor，单线程串行工作
->- FixedThreadPool,固定大小线程池
+>- ThreadPoolExecutor,最常用的任务线程池，可构建SingleThreadExecutor、FixedThreadPool 等
 >- ScheduledThreadPool,执行一些周期性任务线程池
+>- ForkJoinPool，分治法线程池，task需要继承ForkJoinTask，一般继承RecursiveTask，实现自ForkJoinTask
+
+13. ThreadPoolExecutor执行过程
+>- 检查核心线程数，如果小于核心线程数尝试新建线程为当前任务分配线程执行任务，任务的添加和查看以ReentrantLock来保证原子性
+>- 任务offer到queue排队，同时重新检查运行状态，必要事回滚队列
+>- 如果队列剩余数量为0则新建线程
+>- 排队失败则添加worker，如果woker也添加失败则通过handler策略拒绝任务
 13. volatile的特点
 > volatile是jvm提供的`轻量同步机制`，volatile修饰的变量对所有线程都是`可见`的，能够`阻止
 > JVM进行重排序`优化，但`不保证代码执行顺序`(遵循`happen before 原则`)
 14. ThreadLocal 怎么解决并发安全
-> java提供的一种`线程私有信息机制`，`线程为key`，使用需要注意remove，否则会一直伴随着
+> java提供的一种`线程私有信息机制`，`ThreadLocal为弱应用key`，使用需要注意remove，否则会一直伴随着
 > 线程共生，造成`OOM问题`
+![ThreadLocal](./images/ThreadLocal.jpg)
+
 15. 影响线程性能有哪些因素,怎么优化
 >- `上下文切换`(线程之间的切换)
 >- `内存同步`(锁指令,需要刷新缓存)
@@ -96,5 +110,13 @@
 >- FokeJoinPool、task(invokeAll()添加子任务、join()合并子任务)）
 >- 分而治之,分治法(阈值N区分进行大任务拆分，递归拆分任务，直到任务可执行)
 >- 工作密取/工作窃取(从头执行，从尾窃取，做完扔回尾部)
+
+19. JDK代理与CGLib代理
+>- JDK代理是不需要第三方库支持，只需要JDK环境就可以进行代理，使用条件:<br>
+> 1）实现InvocationHandler<br>
+> 2）使用Proxy.newProxyInstance产生代理对象<br>
+> 3）被代理的对象必须要实现接口<br>
+>- CGLib必须依赖于CGLib的类库，但是它需要类来实现任何接口代理的是指定的类生成一个子类，
+> CGLib不能对声明为final的方法进行代理
 
 19. HashMap、ConcurentHashMap
