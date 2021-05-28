@@ -101,20 +101,28 @@ HashMap 在计算数组中key的位置时，使用的算法为：
 static int indexFor(int h, int length) {
 // assert Integer.bitCount(length) == 1 : “length must be a non-zero power of 2”; return h & (length-1); }
 
-即对key的hashcode 与当前数组容量 -1 进行与操作 我们假设有一个容量为分别为15 和 16 的hashMap ，有两个key的hashcode 分别为4和5，进行indexFor操作之后：
+即对key的hashcode 与当前数组容量 -1 进行与操作 我们假设有一个容量为分别为15 和 16 
+的hashMap ，有两个key的hashcode 分别为4和5，进行indexFor操作之后：
 
 H & (length -1) hash & table.length-1 4 & (15 - 1) 0100 & 1110 = 0100 5 & （ 15 -1 ） 0101 & 1110 = 0100
 4 & (16 - 1) 0100 & 1111 = 0100 5 & （ 16 -1 ） 0101 & 1111 = 0101
 
-我们能够看到在容量为16时进行indexFor操作之后获得相同结果的几率要比容量为15时的几率要小，这样能够减少出现hash冲突的几率，从而提高查询效率。2 ^ n是一个非常神奇的数字。
+我们能够看到在容量为16时进行indexFor操作之后获得相同结果的几率要比容量为15时的几率要小，
+这样能够减少出现hash冲突的几率，从而提高查询效率。2 ^ n是一个非常神奇的数字。
 
 #### 三、put时出现相同的hashcode会怎样？
 
-hashMap 里面存储的Entry对象是由数组和链表组成的，当key的hashcode相同时，数组上这个位置存储的结构就是链表，这时会将新的值插入链表的表头。进行取值的时候会先获取到链表，再对链表进行遍历，通过key.equals方法获取到值。（hashcode相同不代表对象相同，不要混淆hashcode和equals方法） 所以声明作final的对象，并且采用合适的equals()和hashCode()方法的话，将会减少碰撞的发生，提高效率。不可变性使得能够缓存不同键的hashcode，这将提高整个获取对象的速度，使用String，Interger这样的wrapper类作为键是非常好的选择。
+hashMap 里面存储的Entry对象是由数组和链表组成的，当key的hashcode相同时，数组上这个位置存储的结构就是链表，
+这时会将新的值插入链表的表头。进行取值的时候会先获取到链表，再对链表进行遍历，通过key.equals方法获取到值。
+（hashcode相同不代表对象相同，不要混淆hashcode和equals方法） 所以声明作final的对象，并且采用合适的equals()
+和hashCode()方法的话，将会减少碰撞的发生，提高效率。不可变性使得能够缓存不同键的hashcode，
+这将提高整个获取对象的速度，使用String，Interger这样的wrapper类作为键是非常好的选择。
 
 #### 四、什么是循环链表？
 
-HashMap在遇到多线程的操作中，如果需要重新调整HashMap的大小时，多个线程会同时尝试去调整HashMap的大小，这时处在同一位置的链表的元素的位置会反过来，以为移动到新的bucket的时候，HashMap不会将新的元素放到尾部（为了避免尾部遍历），这时可能会出现A -> B -> A的情况，从而出现死循环，这便是HashMap中的循环链表。 所以HashMap 是不适合用在多线程的情况下的，可以考虑尝试使用HashTable 或是 ConcurrentHashMap
+HashMap在遇到多线程的操作中，如果需要重新调整HashMap的大小时，多个线程会同时尝试去调整HashMap的大小，这时处在同一位置的链表的元素的位置会反过来，
+以为移动到新的bucket的时候，HashMap不会将新的元素放到尾部（为了避免尾部遍历），这时可能会出现A -> B -> A的情况，从而出现死循环，这便是HashMap中的循环链表。 
+所以HashMap 是不适合用在多线程的情况下的，可以考虑尝试使用HashTable 或是 ConcurrentHashMap
 
 #### 五、如何正确使用HashMap提高性能
 

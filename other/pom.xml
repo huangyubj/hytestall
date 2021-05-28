@@ -24,6 +24,13 @@
     </build>
 
     <dependencies>
+        <!-- 单元测试相关依赖 -->
+        <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+        </dependency>
+        <!--            <scope>test</scope>-->
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>

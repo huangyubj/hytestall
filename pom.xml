@@ -33,6 +33,7 @@
         <module>transaction_common</module>
         <module>falshsales</module>
         <module>myspringmvcweb</module>
+        <module>springcodedraw</module>
     </modules>
 
 

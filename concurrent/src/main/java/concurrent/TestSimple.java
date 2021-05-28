@@ -2,13 +2,43 @@ package concurrent;
 
 import org.junit.jupiter.api.Test;
 
+import java.sql.Connection;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.ReadWriteLock;
 
 public class TestSimple {
     public static void main(String[] args) {
+        ExecutorService service = new ThreadPoolExecutor(2, 10,60000,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(100000));
+        for (int i = 0; i < 10000; i++) {
+            service.execute(new Runnable() {
+                @Override
+                public void run() {
+                    while (true){
+                        try {
+                            Thread.sleep(1000);
+                            System.out.println(Thread.currentThread().getName() + "执行完成");
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+        }
 
+    }
+    private static final int COUNT_BITS = Integer.SIZE - 3;
+    private static final int CAPACITY   = (1 << COUNT_BITS) - 1;
+    @Test
+    public void testtt(){
+        Connection connection =
+                String a = "123";
+        String b = "123";
+        System.out.println(a.equals(a));
+        System.out.println(a == b);
+        ThreadLocal local = new ThreadLocal();
+
+        System.out.println(CAPACITY);
     }
 
     @Test
