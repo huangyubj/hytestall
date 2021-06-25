@@ -33,7 +33,7 @@
 >> 三.否则需要会被`LockSupport.park`(this) 进行阻塞<br>
 >> 四.当release的时候，`LockSupport.unpark`(s.thread)释放当前节点的next节点
 9. 常用的JUC并发工具
-> CountDownLatch、 CyclicBarrier、 Semaphore 等`同步工具`<br>
+> CountDownLatch、 CyclicBarrier(通过reset可重复使用，breakBarrier中断)、 Semaphore 等`同步工具`<br>
 > ConcurrentHashMap、有序的ConcunrrentSkipListMap、CopyOnWriteArrayList等`安全容器`<br>
 > ArrayBlockingQueue、SynchorousQueue等`阻塞队列`<br>
 > 强大的 Executor 框架,各种`线程池`

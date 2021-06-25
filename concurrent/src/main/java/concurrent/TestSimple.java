@@ -29,10 +29,60 @@ public class TestSimple {
     }
     private static final int COUNT_BITS = Integer.SIZE - 3;
     private static final int CAPACITY   = (1 << COUNT_BITS) - 1;
+
+
+    class TestThread extends Thread{
+        private long sleepTIme;
+        private Thread thread;
+        public TestThread(long sleepTIme, Thread thread) {
+            this.sleepTIme = sleepTIme;
+            this.thread = thread;
+        }
+
+        @Override
+        public void run() {
+            try {
+                if(thread != null){
+                    thread.start();
+                    thread.join();
+                }
+                Thread.sleep(sleepTIme);
+                System.out.println(System.currentTimeMillis() + "==" + getName() + " execute over");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Test
+    public void testThreadJoin() throws InterruptedException {
+        TestThread t1 = new TestThread(3000, null);
+        TestThread t2 = new TestThread(2000, t1);
+        TestThread t3 = new TestThread(1000, t2);
+//        t1.start();
+//        t2.start();
+        t3.start();
+        t3.join();
+        System.out.println("main thread oever");
+    }
+
+    public static void setsss(StringBuffer a, StringBuffer b){
+        a.append(b);
+        b=a;
+    }
+
+    @Test
+    public void teett(){
+        StringBuffer a = new StringBuffer("A");
+        StringBuffer b = new StringBuffer("B");
+        setsss(a, b);
+        System.out.println(a);
+        System.out.println(b);
+    }
+
     @Test
     public void testtt(){
-        Connection connection =
-                String a = "123";
+        String a = "123";
         String b = "123";
         System.out.println(a.equals(a));
         System.out.println(a == b);

@@ -44,6 +44,9 @@ public class ActiveMQConsumer2 {
                     e.printStackTrace();
                 }
             });
+//            阻塞式同步消费消息
+//            Message ms = messageConsumer.receive();
+
             long time = System.currentTimeMillis();
             while (System.currentTimeMillis() - time < 500000){
 
